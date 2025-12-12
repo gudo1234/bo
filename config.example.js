@@ -40,7 +40,7 @@ const readMore = more.repeat(4001)
 global.Func = (await import('./lib/function.js')).default
 
 /*============= Config =============*/
-global.owner = ["6283136099660", "6282172589188"]
+global.owner = ["50495351584", "50488723207"]
 global.costumpairing = "OOTA1234"
 global.mods = []
 global.prems = []
