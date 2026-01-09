@@ -68,5 +68,6 @@ let handler = async (m, { conn }) => {
 }
 
 handler.help = ["error"]
+handler.tags = ["info"]
 handler.command = ['error']
 export default handler
