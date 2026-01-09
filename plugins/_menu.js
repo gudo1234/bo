@@ -37,3 +37,4 @@ export async function handler(m, { conn, usedPrefix }) {
 handler.help = ['menu']
 handler.tags = ['main']
 handler.command = ['menu']
+handler.group = true;
