@@ -77,9 +77,9 @@ global.rcanal = {
       contextInfo: {
         isForwarded: true,
         forwardedNewsletterMessageInfo: {
-          newsletterJid: global.channelRD.id,
+          newsletterJid: "120363285614743024@newsletter",
           serverMessageId: 100,
-          newsletterName: global.channelRD.name
+          newsletterName: "hola"
         },
         externalAdReply: {
           showAdAttribution: false,
@@ -90,7 +90,7 @@ global.rcanal = {
           previewType: "PHOTO",
           thumbnailUrl: global.redes,
           sourceUrl: global.redes,
-          thumbnail: thumbnailBuffer,
+          thumbnail: await (await fetch(icono)).buffer(),
           mediaType: 1,
           renderLargerThumbnail: false
         }
