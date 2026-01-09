@@ -73,6 +73,29 @@ Object.defineProperty(global, "icono", {
 });
 global.a1 = `╭┈۫۫۫۫۫╌۪۪۪۪۪۪۪۪֠╼◈¨(`
 global.a2 = `)¨◈۫۫۫۫۫۫۫۫۫╾֩┈۪۪۪۪╮`
+global.rcanal = {
+      contextInfo: {
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: global.channelRD.id,
+          serverMessageId: 100,
+          newsletterName: global.channelRD.name
+        },
+        externalAdReply: {
+          showAdAttribution: false,
+          title: wm,
+          body: textbot,
+          mediaUrl: null,
+          description: null,
+          previewType: "PHOTO",
+          thumbnailUrl: global.redes,
+          sourceUrl: global.redes,
+          thumbnail: thumbnailBuffer,
+          mediaType: 1,
+          renderLargerThumbnail: false
+        }
+      }
+}
 //✅✅✅✅
 
 global.packname = '銉熲槄 饾槍饾槸饾槳饾槰饾槷饾槩-饾槈饾槹饾樀 鈽呭健'
