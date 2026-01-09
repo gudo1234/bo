@@ -20,8 +20,8 @@ let handler = async (m, { conn }) => {
   });
 };
 
-handler.help = ["update"]
-plugin.tags = ["Creador"]
+handler.help = ["actualizar"]
+handler.tags = ["owner"]
 handler.command = ['update', 'up'];
 handler.rowner = true;
 
