@@ -24,10 +24,9 @@ export async function before(m, { conn }) {
   if (!command || command === "bot") return
 
   const user = global.db.data.users[m.sender]
-  let sender = m.sender
 
   // Número real y bandera
-  const realNum = sender.split('@')[0].replace(/\D/g, '')
+  const realNum = m.sender.split('@')[0].replace(/\D/g, '')
   const pn = PhoneNumber(`+${realNum}`)
   const region = pn.getRegionCode() || ''
   let flag = '🌐'
@@ -38,29 +37,25 @@ export async function before(m, { conn }) {
   } catch {}
   const mundo = flag
 
-  // ✅ Revisar si el comando existe
-  const validCommand = Object.values(global.plugins).some(plugin => {
-    const h = plugin.default || plugin
-    if (!h?.command) return false
-    const cmds = Array.isArray(h.command) ? h.command : [h.command]
-    return cmds.some(c => c.toLowerCase() === command)
-  })
+  // 🔹 Obtener todos los comandos de todos los plugins
+  const allCommands = Object.values(global.plugins)
+    .flatMap(plugin => {
+      const h = plugin.default || plugin
+      if (!h) return []
+      if (h.command) return Array.isArray(h.command) ? h.command : [h.command]
+      if (h.help) return Array.isArray(h.help) ? h.help : [h.help] // fallback
+      return []
+    })
+    .map(c => c.toLowerCase()) // normalizamos a minúsculas
+    .filter(Boolean)
 
-  if (validCommand) {
+  // 🔹 Validar si existe el comando
+  if (allCommands.includes(command)) {
     user.commands = (user.commands || 0) + 1
     return
   }
 
-  // Obtener todos los comandos reales
-  const allCommands = Object.values(global.plugins)
-    .flatMap(plugin => {
-      const h = plugin.default || plugin
-      if (!h?.command) return []
-      return Array.isArray(h.command) ? h.command : [h.command]
-    })
-    .filter(cmd => typeof cmd === 'string')
-
-  // Buscar sugerencias
+  // 🔹 Buscar sugerencias
   const similares = allCommands
     .map(cmd => {
       const dist = levenshteinDistance(command, cmd)
@@ -72,7 +67,7 @@ export async function before(m, { conn }) {
     .sort((a, b) => b.sim - a.sim)
     .slice(0, 2)
 
-  // Texto final
+  // 🔹 Texto final
   let text = `⌗ _*Comando no reconocido*_\n> ${mundo} Usa *${usedPrefix}menu* para ver los disponibles.\n`
   if (similares.length) {
     text += `\n∝ *Sugerencias:*\n`
