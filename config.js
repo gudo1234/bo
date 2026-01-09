@@ -9,8 +9,7 @@ import axios from 'axios'
 
 
 global.owner = [
-  ['5215539356057', 'Enigma', true],
-
+  ['5493425242334', ' 🍁̶͢͞▻⟅ẹ𝆊ϋ⟆٭⳺֟፝͜⳻٭.er/k.', true],
 ]
 
 
