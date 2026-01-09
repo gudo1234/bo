@@ -98,26 +98,23 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
       }
     } catch {}
 
-    // -------------------------------
-    // ENVIAR PREVIEW
-    // -------------------------------
-    await conn.sendMessage(m.chat, {
-    text: caption,
-    contextInfo: {
-        externalAdReply: {
-            title: title,
-            body: textbot,
-            thumbnailUrl: redes,
-            thumbnail: thumb,
-            sourceUrl: redes,
-            mediaType: 1
+    await conn.sendMessage(
+    m.chat,
+    {
+        text: caption,
+        contextInfo: {
+            externalAdReply: {
+                title: title,
+                body: textbot,
+                thumbnailUrl: redes,
+                thumbnail: thumb,
+                sourceUrl: redes,
+                mediaType: 1
+            }
         }
-    }
-})
-
-    // -------------------------------
-    // APIs
-    // -------------------------------
+    },
+    { quoted: m }
+)
     let data = null
     let usedApi = ""
 
