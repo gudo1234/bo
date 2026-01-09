@@ -17,6 +17,7 @@ let handler = async (m, { conn, isOwner, command, text }) => {
 }
 
 handler.help = ["$"]
+handler.tags = ["owner"]
 handler.customPrefix = /^[$] /
 handler.command = new RegExp
 handler.rowner = true
