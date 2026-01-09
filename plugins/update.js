@@ -20,6 +20,7 @@ let handler = async (m, { conn }) => {
   });
 };
 
+handler.help = ["update"]
 handler.command = ['update', 'up'];
 handler.rowner = true;
 
