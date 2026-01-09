@@ -35,7 +35,7 @@ const handler = async (m, { text, conn, args }) => {
   
     await m.react("✅");
   } catch (e) {
-    return conn.reply(m.chat, `${msm} Error al enviar el video.`, m)
+    return conn.reply(m.chat, ` Error al enviar el video. ${e}`, m)
     await m.react("❌");
   }
 }
