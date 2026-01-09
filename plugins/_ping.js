@@ -9,6 +9,7 @@ const handler = async (m, { conn }) => {
   }
 }
 
+handler.help = ["ping"]
 handler.customPrefix = /^(p|ping)$/i
 handler.command = new RegExp
 export default handler
