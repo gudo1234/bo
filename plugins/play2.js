@@ -176,6 +176,7 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
 }
 
 handler.help = ["play", "play2", "play3", "play4"]
+handler.tags = ["descargas"]
 handler.command = [
   'play', 'yta', 'mp3', 'ytmp3', 'playaudio',
   'play3', 'ytadoc', 'mp3doc', 'ytmp3doc',
