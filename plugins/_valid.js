@@ -24,9 +24,17 @@ export async function before(m, { conn }) {
   if (!command || command === "bot") return
 
   const user = global.db.data.users[m.sender]
+  let sender = m.sender
+
+  // ⚡ Bypass del @lid
+  if (sender?.endsWith('@lid')) {
+    const metadata = await conn.groupMetadata?.(m.chat).catch(() => null)
+    const match = metadata?.participants?.find(p => p.id === sender && p.jid)
+    if (match) sender = match.jid
+  }
 
   // Número real y bandera
-  const realNum = m.sender.split('@')[0].replace(/\D/g, '')
+  const realNum = sender.split('@')[0].replace(/\D/g, '')
   const pn = PhoneNumber(`+${realNum}`)
   const region = pn.getRegionCode() || ''
   let flag = '🌐'
@@ -37,7 +45,7 @@ export async function before(m, { conn }) {
   } catch {}
   const mundo = flag
 
-  // 🔹 Obtener todos los comandos de todos los plugins
+  // 🔹 TODOS LOS COMANDOS REALES
   const allCommands = Object.values(global.plugins)
     .flatMap(plugin => {
       const h = plugin.default || plugin
@@ -46,7 +54,7 @@ export async function before(m, { conn }) {
       if (h.help) return Array.isArray(h.help) ? h.help : [h.help] // fallback
       return []
     })
-    .map(c => c.toLowerCase()) // normalizamos a minúsculas
+    .map(c => c.toLowerCase())
     .filter(Boolean)
 
   // 🔹 Validar si existe el comando
