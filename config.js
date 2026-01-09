@@ -15,7 +15,7 @@ global.owner = [
 global.mods = []
 global.prems = []
 //❤️❤️❤️❤️
-async function getRandomChannel() {
+/*async function getRandomChannel() {
   const canalIdM = ["120363285614743024@newsletter", "120363395205399025@newsletter"]
   const canalNombreM = ["🤖⃧►iʑυвöτ◃2.0▹", "Zeus Bot🔆Channel-OFC"]
 
@@ -24,7 +24,7 @@ async function getRandomChannel() {
     id: canalIdM[idx],
     name: canalNombreM[idx]
   }
-}
+}*/
 const emojiList = [
     "🌱", "🪴", "⭐", "🍁", "⚡",
     "🌙", "🏖️", "🪐", "✨", "🌊"
