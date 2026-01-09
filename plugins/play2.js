@@ -76,7 +76,6 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
       ? `\n> ‣ Se enviará como documento por superar 20 minutos.` : ""
 
     const caption = `╭──── • ────╮
-> ✰ *Título:* ${title}
 > ♢ *Canal:* ${author?.name}
 > ♪ *Duración:* ${duration}
 > ♫ *Vistas:* ${views?.toLocaleString()}
@@ -103,25 +102,18 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
     // ENVIAR PREVIEW
     // -------------------------------
     await conn.sendMessage(m.chat, {
-      text: caption,
-      footer: textbot,
-      contextInfo: {
-        isForwarded: true,
-        forwardedNewsletterMessageInfo: {
-          newsletterJid: channelRD.id,
-          newsletterName: channelRD.name,
-          serverMessageId: -1,
-        },
+    text: caption,
+    contextInfo: {
         externalAdReply: {
-          title: '🎧 YOUTUBE EXTRACTOR',
-          body: textbot,
-          thumbnail: thumb,
-          thumbnailUrl: redes,
-          sourceUrl: redes,
-          mediaType: 1,
-        },
-      }
-    }, { quoted: m })
+            title: title,
+            body: textbot,
+            thumbnailUrl: redes,
+            thumbnail: thumb,
+            sourceUrl: redes,
+            mediaType: 1
+        }
+    }
+})
 
     // -------------------------------
     // APIs
