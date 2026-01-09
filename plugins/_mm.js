@@ -133,6 +133,7 @@ if (m.isGroup) {
     }
 
     // --- Envío del mensaje ---
+      m.react(e)
     await conn.relayMessage(
       m.chat,
       { viewOnceMessage: { message: { interactiveMessage: nativeFlowPayload } } },
