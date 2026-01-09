@@ -29,6 +29,6 @@ m.react(e)
 
 handler.help = ['menu']
 handler.tags = ['main']
-handler.command = ['menu']
+handler.command = ['menu', 'help', 'comandos', 'menú', 'm', 'memu']
 
 export default handler
