@@ -15,6 +15,8 @@ let handler = async (m, { conn }) => {
     }
 }
 
+handler.help = ["reiniciar"]
+handler.tags = ["owner"]
 handler.command = ['restart', 'reiniciar', 'res']
 handler.rowner = true
 
