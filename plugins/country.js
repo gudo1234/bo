@@ -201,67 +201,82 @@ const flags = [
 ]
 
 // ==================== ESTADO ====================
-const userMessageCount = {}
+const chatState = {}
 
-// ==================== JUEGO ====================
+// ================== JUEGO ==================
 export async function before(m, { conn }) {
   try {
     const chat = db.data.chats[m.chat]
     if (!chat || !chat.autoband || !m.isGroup) return true
-    if (!m.message) return true
+    if (!m.key || !m.key.id) return true
 
-    if (!userMessageCount[m.chat]) {
-      userMessageCount[m.chat] = { count: 0, currentFlag: null, question: null, time: 0 }
+    if (!chatState[m.chat]) {
+      chatState[m.chat] = {
+        lastMsg: null,
+        count: 0,
+        flag: null,
+        msg: null,
+        time: 0
+      }
     }
 
-    const data = userMessageCount[m.chat]
-    data.count++
+    const data = chatState[m.chat]
 
-    if (data.count % 10 === 0) {
+    // 🔥 Conteo REAL usando el ID de WhatsApp
+    if (data.lastMsg !== m.key.id) {
+      data.lastMsg = m.key.id
+      data.count++
+    }
+
+    // Cambia 10 por 103 cuando termines pruebas
+    if (data.count > 0 && data.count % 10 === 0 && !data.msg) {
       const flag = flags[Math.floor(Math.random() * flags.length)]
 
-      data.currentFlag = flag.name
-      data.currentEmoji = flag.emoji
-      data.currentDial = flag.dialCodes?.[0] || "N/A"
-
-      data.question = await conn.sendMessage(m.chat, {
+      data.flag = flag
+      data.msg = await conn.sendMessage(m.chat, {
         image: { url: flag.image },
-        caption: `💣 ¿A qué país pertenece esta bandera? ${data.currentEmoji}\n\n⏳ Tienes 3 minutos para responder a este mensaje`
+        caption: `💣 ¿A qué país pertenece esta bandera? ${flag.emoji}\n\n⏳ Tienes 3 minutos`
       })
-
       data.time = Date.now()
     }
 
-    if (!data.question) return true
+    if (!data.msg) return true
 
-    const elapsed = Date.now() - data.time
-    if (elapsed > 180000) {
-      data.question = null
+    // Timeout
+    if (Date.now() - data.time > 180000) {
+      try {
+        await conn.sendMessage(m.chat, {
+          delete: { remoteJid: m.chat, fromMe: true, id: data.msg.key.id }
+        })
+      } catch {}
+      data.msg = null
       return true
     }
 
-    if (m.quoted && m.quoted.id === data.question.key.id) {
-      const text = (m.text || "").trim().toLowerCase()
+    // Validar respuesta
+    if (m.quoted && m.quoted.id === data.msg.key.id) {
+      const txt = (m.text || "").trim().toLowerCase()
 
-      if (text === data.currentFlag.toLowerCase()) {
+      if (txt === data.flag.name.toLowerCase()) {
         await m.react("🎉")
-        await conn.reply(m.chat, `🎉 ¡Correcto!\n\n🌍 ${data.currentFlag} ${data.currentEmoji}\n📞 Código: ${data.currentDial}`, m)
+        await conn.reply(m.chat, `🎉 ¡Correcto!\n\n${data.flag.name} ${data.flag.emoji}`, m)
 
         try {
           await conn.sendMessage(m.chat, {
-            delete: { remoteJid: m.chat, fromMe: true, id: data.question.key.id }
+            delete: { remoteJid: m.chat, fromMe: true, id: data.msg.key.id }
           })
         } catch {}
 
-        data.question = null
+        data.msg = null
       } else {
         await m.react("❌")
-        await conn.reply(m.chat, `❌ Incorrecto\n\nPista: Código ${data.currentDial} ${data.currentEmoji}`, m)
+        await conn.reply(m.chat, `❌ Incorrecto\n\nPista: ${data.flag.emoji}`, m)
       }
     }
+
   } catch (e) {
-    console.error("AutoBand error:", e)
+    console.error("AutoBand:", e)
   }
 
   return true
-}
+        }
