@@ -21,7 +21,12 @@ if (m.isGroup) {
     // --- Menú simple ---
     let uptime = process.uptime() * 1000
   let run = clockString(uptime)
-    const menu = `hola ${mundo}`
+    const info = global.mundo || {
+    numero: "desconocido",
+    country: "Desconocido",
+    flag: "🌐"
+    }
+    const menu = `hola ${info.flag} ${info.country}`
 
     // --- Context info para botones y mensajes ---
     const contextInfo = {
