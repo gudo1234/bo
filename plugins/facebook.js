@@ -31,7 +31,7 @@ const handler = async (m, { text, conn, args }) => {
 
   let video = data.url;
   try {
-  await conn.sendFile(m.chat, video, `thumbnail.mp4`, `${e} _Video de facebook_`, m)
+  await conn.sendFile(m.chat, video, `thumbnail.mp4`, `${e} _Video de facebook_`, m, null, rcanal)
   
     await m.react("✅");
   } catch (e) {
