@@ -2,6 +2,7 @@ import fs from 'fs'
 import { join } from 'path'
 import Jimp from 'jimp';
 import fetch from 'node-fetch'
+mport { getDevice } from "@whiskeysockets/baileys"
 
 let handler = async (m, { conn, __dirname }) => {
 let groupName = ''
@@ -22,7 +23,34 @@ if (m.isGroup) {
     let uptime = process.uptime() * 1000
   let run = clockString(uptime)
     const info = await global.mundo(m, conn)
-    const menu = `hola ${info.flag} ${info.country}`
+    let categorias = {}
+
+    for (const plugin of Object.values(global.plugins)) {
+        const h = plugin.default || plugin
+        if (!h || !h.help || !h.tags) continue
+
+        const helps = Array.isArray(h.help) ? h.help : [h.help]
+        const tags = Array.isArray(h.tags) ? h.tags : [h.tags]
+
+        for (const tag of tags) {
+            if (!categorias[tag]) categorias[tag] = []
+            categorias[tag].push(...helps)
+        }
+    }
+let pais = `${info.flag} ${info.country}`
+    let text = `${e} _Hola ${m.pushName} ¿Cómo estás?\n\n\`❒ᴄᴏɴᴛᴇxᴛ-ɪɴғᴏ☔\`
+┌────────────
+│ 🌎 *País:* ${pais}
+│ 📱 *Sistema/Opr:* ${getDevice(m.key.id)}
+└────────────\n\n🤖 *MENÚ DE COMANDOS*\n━━━━━━━━━━━━━━\n`
+
+    for (const tag of Object.keys(categorias).sort()) {
+        text += `\n╭─❏ *${tag.toUpperCase()}*\n`
+        for (const cmd of [...new Set(categorias[tag])]) {
+            text += `│ • ${usedPrefix}${cmd}\n`
+        }
+        text += `╰────────────\n`
+    }
 
     // --- Context info para botones y mensajes ---
     const contextInfo = {
@@ -56,7 +84,7 @@ if (m.isGroup) {
         },
         hasMediaAttachment: true
       },
-      body: { text: menu },
+      body: { text: text },
       footer: { text: '🤨 xvidẹ𝆬os.er/k (๑ ิټ ิ)' },
       nativeFlowMessage: {
         buttons: [
