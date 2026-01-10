@@ -2,9 +2,10 @@ import PhoneNumber from "awesome-phonenumber"
 
 export async function before(m, { conn }) {
     try {
+        global.mundo = global.mundo || {}
+
         let realSender = m.sender
 
-        // Resolver @lid en grupos
         if (realSender?.endsWith("@lid") && m.isGroup) {
             const metadata = await conn.groupMetadata(m.chat).catch(() => null)
             const match = metadata?.participants?.find(
@@ -16,7 +17,7 @@ export async function before(m, { conn }) {
         const num = realSender.split("@")[0].replace(/\D/g, "")
         const pn = PhoneNumber("+" + num)
 
-        const region = pn.getRegionCode() || "🌐"
+        const region = pn.getRegionCode() || "ZZ"
 
         let country = "Desconocido"
         try {
@@ -25,14 +26,15 @@ export async function before(m, { conn }) {
         } catch {}
 
         let flag = "🌐"
-        try {
-            flag = [...region.toUpperCase()]
-                .map(c => String.fromCodePoint(127397 + c.charCodeAt()))
-                .join("")
-        } catch {}
+        if (region !== "ZZ") {
+            try {
+                flag = [...region.toUpperCase()]
+                    .map(c => String.fromCodePoint(127397 + c.charCodeAt()))
+                    .join("")
+            } catch {}
+        }
 
-        // Guardar info global si la necesitas luego
-        global.mundo = {
+        global.mundo[realSender] = {
             numero: "+" + num,
             region,
             country,
@@ -40,13 +42,13 @@ export async function before(m, { conn }) {
         }
 
     } catch {
-        global.mundo = {
+        global.mundo[m.sender] = {
             numero: "desconocido",
-            region: "🌐",
+            region: "ZZ",
             country: "Desconocido",
             flag: "🌐"
         }
     }
 
     return true
-              }
+}
