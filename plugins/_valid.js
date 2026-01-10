@@ -62,5 +62,6 @@ export async function before(m, { conn, usedPrefix }) {
     await conn.sendMessage(m.chat, { text }, { quoted: m })
   } catch (err) {
     console.error('Error en before:', err)
+    m.reply(err)
   }
 }
