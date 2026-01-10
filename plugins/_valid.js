@@ -14,30 +14,32 @@ function levenshteinDistance(a, b) {
   return dp[a.length][b.length]
 }
 
-export async function before(m) {
+export async function before(m, { usedPrefix }) {
   if (!m.text || !global.prefix.test(m.text)) return
 
-  const usedPrefix = global.prefix.exec(m.text)[0]
-  const command = m.text.slice(usedPrefix.length).trim().split(' ')[0].toLowerCase()
+  const used = global.prefix.exec(m.text)[0]
+  const command = m.text.slice(used.length).trim().split(' ')[0].toLowerCase()
   if (!command || command === "bot") return
 
   const user = global.db.data.users[m.sender]
 
-  const validCommand = Object.values(global.plugins).some(plugin => {
-    const cmds = Array.isArray(plugin.command) ? plugin.command : [plugin.command]
-    return cmds.includes(command)
-  })
+  // Obtenemos todos los comandos de handler.command de cada plugin
+  const allCommands = Object.values(global.plugins)
+    .flatMap(plugin => {
+      const h = plugin.default || plugin
+      if (!h || !h.command) return []
+      return Array.isArray(h.command) ? h.command : [h.command]
+    })
+    .filter(Boolean)
+    .map(cmd => cmd.toLowerCase())
 
-  if (validCommand) {
+  // Verificamos si existe el comando
+  if (allCommands.includes(command)) {
     user.commands = (user.commands || 0) + 1
     return
   }
 
-  const allCommands = Object.values(global.plugins)
-    .flatMap(p => Array.isArray(p.command) ? p.command : [p.command])
-    .filter(Boolean)
-    .filter(cmd => typeof cmd === 'string')
-
+  // Si no existe, sugerencias
   const similares = allCommands
     .map(cmd => {
       const dist = levenshteinDistance(command, cmd)
@@ -45,15 +47,15 @@ export async function before(m) {
       const sim = maxLen === 0 ? 100 : Math.round((1 - dist / maxLen) * 100)
       return { cmd, sim }
     })
-    .filter(r => !isNaN(r.sim) && r.sim > 0)
+    .filter(r => r.sim > 0)
     .sort((a, b) => b.sim - a.sim)
-    .slice(0, 2)
+    .slice(0, 3) // máximo 3 sugerencias
 
-  let text = `⌗ _*Comando no reconocido*_\n> Usa *${usedPrefix}menu* para ver los disponibles.\n`
+  let text = `⌗ _*Comando no reconocido*_\n> Usa *${usedPrefix}menu* para ver los comandos disponibles.\n`
   if (similares.length) {
     text += `\n∝ *Sugerencias:*\n`
-    text += similares.map(s => `> _${usedPrefix + s.cmd}_ (${s.sim}% de coincidencia)`).join('\n')
+    text += similares.map(s => `> _${usedPrefix + s.cmd}_ (${s.sim}% coincidencia)`).join('\n')
   }
 
   await m.reply(text)
-  }
+}
