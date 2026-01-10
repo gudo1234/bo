@@ -85,3 +85,41 @@ global.rcanal = {
         }
       }
 }
+
+global.fake = {
+      contextInfo: {
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: global.channelRD.id,
+          newsletterName: global.channelRD.name,
+          serverMessageId: -1
+        }
+      },
+      quoted: m
+}
+
+global.rwait = '🕒'
+global.done = '✅'
+global.error = '✖️'
+global.msm = '⚠︎'
+    
+    global.emoji = '🪴'
+    global.emoji2 = '🍁'
+    global.emoji3 = '🍎'
+    global.emoji4 = '⚡'
+    global.emoji5 = '🌱'
+    global.emojis = getRandom([global.emoji, global.emoji2, global.emoji3, global.emoji4, global.emoji5])
+
+    global.e1 = '🪴'
+    global.e2 = '🍁'
+    global.e3 = '🍎'
+    global.e4 = '⚡'
+    global.e5 = '🌱'
+    global.e = getRandom([global.e1, global.e2, global.e3, global.e4, global.e5])
+
+    global.s1 = '➪'
+    global.s2 = '➺'
+    global.s3 = '➣'
+    global.s4 = '⬭'
+    global.s5 = '⬖'
+    global.s = getRandom([global.s1, global.s2, global.s3, global.s4, global.s5])
