@@ -21,9 +21,14 @@ if (m.isGroup) {
     // --- Menú simple ---
     let uptime = process.uptime() * 1000
   let run = clockString(uptime)
-    const info = global.userData?.[m.sender]
+    const realJid = global.userJidMap?.[m.sender] || m.sender
+  const info = global.userData?.[realJid]
 
-m.reply(`🌍 ${info.country} ${info.flag}`)
+  if (!info) {
+    return m.reply('Hola 👋')
+  }
+
+  m.reply(`🌍 ${info.country} ${info.flag}`)
     const menu = `hola ${info.flag} ${info.country}`
 
     // --- Context info para botones y mensajes ---
