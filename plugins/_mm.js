@@ -241,5 +241,6 @@ function clockString(ms) {
 
 handler.help = ['menu']
 handler.tags = ['main']
+handler.group = true;
 handler.command = ['menu', 'help', 'comandos', 'menú', 'm', 'memu']
 export default handler
