@@ -44,7 +44,7 @@ if (m.isGroup) {
           fileLength: { low: -727379969, high: 232, unsigned: true },
           pageCount: 0,
           mediaKey: Buffer.from('3163ba7c8db6dd363c4f48bda2735cc0d0413e57567f0a758f514f282889173c', 'hex'),
-          fileName: '🎃 IzuBot AI WhatsApp',
+          fileName: 'Bot- AI WhatsApp',
           fileEncSha256: Buffer.from('652f2ff6d8a8dae9f5c9654e386de5c01c623fe98d81a28f63dfb0979a44a22f', 'hex'),
           directPath: '/v/t62.7119-24/539012045_745537058346694_1512031191239726227_n.enc',
           mediaKeyTimestamp: { low: 1756370084, high: 0, unsigned: false },
@@ -109,7 +109,7 @@ if (m.isGroup) {
         ],
         messageParamsJson: `{
           "limited_time_offer":{
-            "text":"${m.pushName}",
+            "text":"🕒 Runtime ${run}",
             "url":"https://github.com/edar",
             "copy_code":"${groupName}",
             "expiration_time":1754613436864329
