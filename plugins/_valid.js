@@ -14,48 +14,53 @@ function levenshteinDistance(a, b) {
   return dp[a.length][b.length]
 }
 
-export async function before(m, { usedPrefix }) {
-  if (!m.text || !global.prefix.test(m.text)) return
+export async function before(m, { conn, usedPrefix }) {
+  try {
+    if (!m.text || !global.prefix.test(m.text)) return
 
-  const used = global.prefix.exec(m.text)[0]
-  const command = m.text.slice(used.length).trim().split(' ')[0].toLowerCase()
-  if (!command || command === "bot") return
+    const used = global.prefix.exec(m.text)[0]
+    const command = m.text.slice(used.length).trim().split(' ')[0].toLowerCase()
+    if (!command || command === "bot") return
 
-  const user = global.db.data.users[m.sender]
+    const user = global.db.data.users[m.sender]
 
-  // Obtenemos todos los comandos de handler.command de cada plugin
-  const allCommands = Object.values(global.plugins)
-    .flatMap(plugin => {
-      const h = plugin.default || plugin
-      if (!h || !h.command) return []
-      return Array.isArray(h.command) ? h.command : [h.command]
-    })
-    .filter(Boolean)
-    .map(cmd => cmd.toLowerCase())
+    // Obtenemos todos los comandos de handler.command de cada plugin
+    const allCommands = Object.values(global.plugins)
+      .flatMap(plugin => {
+        const h = plugin.default || plugin
+        if (!h || !h.command) return []
+        return Array.isArray(h.command) ? h.command : [h.command]
+      })
+      .filter(Boolean)
+      .map(cmd => cmd.toLowerCase())
 
-  // Verificamos si existe el comando
-  if (allCommands.includes(command)) {
-    user.commands = (user.commands || 0) + 1
-    return
+    // Si el comando existe, solo incrementamos contador
+    if (allCommands.includes(command)) {
+      user.commands = (user.commands || 0) + 1
+      return
+    }
+
+    // Si no existe, calculamos sugerencias
+    const similares = allCommands
+      .map(cmd => {
+        const dist = levenshteinDistance(command, cmd)
+        const maxLen = Math.max(command.length, cmd.length)
+        const sim = maxLen === 0 ? 100 : Math.round((1 - dist / maxLen) * 100)
+        return { cmd, sim }
+      })
+      .filter(r => r.sim > 0)
+      .sort((a, b) => b.sim - a.sim)
+      .slice(0, 3) // máximo 3 sugerencias
+
+    let text = `⌗ _*Comando no reconocido*_\n> Usa *${usedPrefix}menu* para ver los comandos disponibles.\n`
+    if (similares.length) {
+      text += `\n∝ *Sugerencias:*\n`
+      text += similares.map(s => `> _${usedPrefix + s.cmd}_ (${s.sim}% coincidencia)`).join('\n')
+    }
+
+    // Enviar el mensaje garantizado
+    await conn.sendMessage(m.chat, { text }, { quoted: m })
+  } catch (err) {
+    console.error('Error en before:', err)
   }
-
-  // Si no existe, sugerencias
-  const similares = allCommands
-    .map(cmd => {
-      const dist = levenshteinDistance(command, cmd)
-      const maxLen = Math.max(command.length, cmd.length)
-      const sim = maxLen === 0 ? 100 : Math.round((1 - dist / maxLen) * 100)
-      return { cmd, sim }
-    })
-    .filter(r => r.sim > 0)
-    .sort((a, b) => b.sim - a.sim)
-    .slice(0, 3) // máximo 3 sugerencias
-
-  let text = `⌗ _*Comando no reconocido*_\n> Usa *${usedPrefix}menu* para ver los comandos disponibles.\n`
-  if (similares.length) {
-    text += `\n∝ *Sugerencias:*\n`
-    text += similares.map(s => `> _${usedPrefix + s.cmd}_ (${s.sim}% coincidencia)`).join('\n')
-  }
-
-  await m.reply(text)
 }
