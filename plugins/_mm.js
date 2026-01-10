@@ -19,6 +19,8 @@ if (m.isGroup) {
       : null
 
     // --- Menú simple ---
+    let uptime = process.uptime() * 1000
+  let run = clockString(uptime)
     const menu = `hola`
 
     // --- Context info para botones y mensajes ---
@@ -143,6 +145,12 @@ if (m.isGroup) {
     console.error('Error al generar mensaje interactivo:', e)
     await conn.reply(m.chat, `❌ Error al generar mensaje:\n${e.message}`, m)
   }
+}
+function clockString(ms) {
+  let h = isNaN(ms) ? '--' : Math.floor(ms / 3600000)
+  let m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60
+  let s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60
+  return [h, m, s].map(v => v.toString().padStart(2, 0)).join(':')
 }
 
 handler.command = ['mm']
