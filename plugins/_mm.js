@@ -15,7 +15,7 @@ if (m.isGroup) {
     const imgPath = join(__dirname, '../storage/catalogo.jpg')
     const thumbLocal = fs.existsSync(imgPath) ? fs.readFileSync(imgPath) : null
     const thumbResized = thumbLocal
-      ? await (await Jimp.read(thumbLocal)).resize(300, 200).getBufferAsync(Jimp.MIME_JPEG)
+      ? await (await Jimp.read(thumbLocal)).resize(300, 100).getBufferAsync(Jimp.MIME_JPEG)
       : null
 
     // --- Menú simple ---
