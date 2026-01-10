@@ -3,7 +3,7 @@ import { URL } from 'url'
 
 let handler = async (m, { text, conn, command, usedPrefix }) => {
   if (!/^https?:\/\//.test(text))
-    return conn.reply(m.chat, `${e} Ingresa cualquier URL de la web que contenga HTML o enlaces de video, incluyendo sitios como Pinterest, X (Twitter) o páginas para adultos.\n\n${s} Ejemplo:\n*${usedPrefix + command}* https://qu-leo.pro/1052-2/`, m)
+    return conn.reply(m.chat, `${e} Ingresa cualquier URL de la web que contenga HTML o enlaces de video, incluyendo sitios como Pinterest, X (Twitter) o páginas para adultos.\n\n> Ejemplo:\n*${usedPrefix + command}* https://qu-leo.pro/1052-2/`, m)
 
   await m.react('🕒')
 
