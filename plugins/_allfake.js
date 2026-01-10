@@ -1,4 +1,5 @@
 import PhoneNumber from "awesome-phonenumber"
+import fetch from 'node-fetch'
 async function getRandomChannel() {
   const canalIdM = ["120363285614743024@newsletter", "120363395205399025@newsletter"]
   const canalNombreM = ["🤖⃧►iʑυвöτ◃2.0▹", "Zeus Bot🔆Channel-OFC"]
@@ -59,4 +60,28 @@ global.mundo = async function (m, conn) {
             flag: "🌐"
         }
     }
+}
+//
+global.rcanal = {
+      contextInfo: {
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: global.channelRD.id,
+          serverMessageId: 100,
+          newsletterName: global.channelRD.name
+        },
+        externalAdReply: {
+          showAdAttribution: false,
+          title: wm,
+          body: textbot,
+          mediaUrl: null,
+          description: null,
+          previewType: "PHOTO",
+          thumbnailUrl: global.redes,
+          sourceUrl: global.redes,
+          thumbnail: await (await fetch(icono)).buffer(),
+          mediaType: 1,
+          renderLargerThumbnail: false
+        }
+      }
 }
