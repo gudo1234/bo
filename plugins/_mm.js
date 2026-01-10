@@ -102,7 +102,6 @@ let pais = `${info.flag} ${info.country}`
                     {"title":"Owner/Creador","description":"","id":"Edar"},
                     {"title":"Información del Bot","description":"","id":".info"},
                     {"title":"Reglas/Términos","description":"","id":".reglas"},
-                    {"title":"vcard/yo","description":"","id":".vcar"},
                     {"title":"Ping","description":"Velocidad del bot","id":".ping"}
                   ]
                 }
@@ -113,7 +112,7 @@ let pais = `${info.flag} ${info.country}`
           { name: 'cta_copy', buttonParamsJson: '{"display_text":"Copiar Código","id":"123456789","copy_code":"Soy bien puto alv :v"}' },
           {
             name: 'cta_url',
-            buttonParamsJson: `{"display_text":"Canal de WhatsApp","url":"${global.channel}","merchant_url":"${global.channel}"}`
+            buttonParamsJson: `{"display_text":"Canal de WhatsApp","url":"${global.canal}","merchant_url":"${global.canal}"}`
           },
           {
             name: 'galaxy_message',
@@ -122,7 +121,7 @@ let pais = `${info.flag} ${info.country}`
               "flow_message_version":"3",
               "flow_token":"1:1307913409923914:293680f87029f5a13d1ec5e35e718af3",
               "flow_id":"1307913409923914",
-              "flow_cta":"ᴀᴄᴄᴇᴅᴇ ᴀ ʙᴏᴛ ᴀɪ",
+              "flow_cta":"👨🏻‍💻 ᴀᴄᴄᴇᴅᴇ ᴀ ʙᴏᴛ ᴀɪ",
               "flow_action":"navigate",
               "flow_action_payload":{
                 "screen":"QUESTION_ONE",
