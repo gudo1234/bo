@@ -1,4 +1,18 @@
 import PhoneNumber from "awesome-phonenumber"
+global.canalIdM = [
+  "120363285614743024@newsletter",
+  "120363395205399025@newsletter"
+]
+
+global.canalNombreM = [
+  "🤖⃧►iʑυвöτ◃2.0▹",
+  "Zeus Bot🔆Channel-OFC"
+]
+
+;(async () => {
+  global.channelRD = await getRandomChannel()
+})()
+
 global.mundo = async function (m, conn) {
     try {
         let realSender = m.sender
