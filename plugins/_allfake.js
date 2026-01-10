@@ -46,7 +46,4 @@ global.mundo = async function (m, conn) {
             flag: "🌐"
         }
     }
-  global.canalIdM = ["120363285614743024@newsletter", "120363395205399025@newsletter"]
-    global.canalNombreM = ["🤖⃧►iʑυвöτ◃2.0▹", "Zeus Bot🔆Channel-OFC"]
-    global.channelRD = await getRandomChannel()
 }
