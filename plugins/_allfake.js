@@ -1,15 +1,4 @@
 import PhoneNumber from "awesome-phonenumber"
-
-async function getRandomChannel() {
-  const canalIdM = ["120363285614743024@newsletter", "120363395205399025@newsletter"]
-  const canalNombreM = ["🤖⃧►iʑυвöτ◃2.0▹", "Zeus Bot🔆Channel-OFC"]
-
-  const idx = Math.floor(Math.random() * canalIdM.length)
-  return {
-    id: canalIdM[idx],
-    name: canalNombreM[idx]
-  }
-}
 global.mundo = async function (m, conn) {
     try {
         let realSender = m.sender
@@ -57,4 +46,7 @@ global.mundo = async function (m, conn) {
             flag: "🌐"
         }
     }
+  global.canalIdM = ["120363285614743024@newsletter", "120363395205399025@newsletter"]
+    global.canalNombreM = ["🤖⃧►iʑυвöτ◃2.0▹", "Zeus Bot🔆Channel-OFC"]
+    global.channelRD = await getRandomChannel()
 }
