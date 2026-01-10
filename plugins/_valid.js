@@ -1,24 +1,32 @@
-export async function before(m, { usedPrefix }) {
+import fs from 'fs'
+import path from 'path'
+
+export async function before(m, { conn, usedPrefix }) {
   try {
     if (!m.text || !global.prefix.test(m.text)) return
 
-    // Extraemos el comando
     const command = m.text.slice(usedPrefix.length).trim().split(/ +/)[0].toLowerCase()
-    if (!command) return  // solo chequeo de seguridad, puedes omitirlo si quieres
+    if (!command) return
 
     const user = global.db.data.users[m.sender]
 
-    // Recorremos todos los plugins cargados y tomamos handler.command
-    const allCommands = Object.values(global.plugins)
-      .flatMap(plugin => {
-        const h = plugin.default || plugin
-        if (!h || !h.command) return []
-        return Array.isArray(h.command) ? h.command : [h.command]
-      })
-      .filter(Boolean)
-      .map(cmd => cmd.toLowerCase())
+    // Leemos todos los plugins directamente desde la carpeta
+    const pluginsPath = path.join(process.cwd(), 'plugins')
+    const pluginFiles = fs.readdirSync(pluginsPath).filter(f => f.endsWith('.js'))
 
-    // Si existe, incrementamos contador
+    const allCommands = []
+
+    for (const file of pluginFiles) {
+      const pluginPath = path.join(pluginsPath, file)
+      const pluginModule = await import(`file://${pluginPath}`)
+      const handler = pluginModule.default || pluginModule
+      if (handler && handler.command) {
+        const cmds = Array.isArray(handler.command) ? handler.command : [handler.command]
+        allCommands.push(...cmds.map(c => c.toLowerCase()))
+      }
+    }
+
+    // Si el comando existe, incrementamos contador
     if (allCommands.includes(command)) {
       user.commands = (user.commands || 0) + 1
       return
@@ -41,7 +49,6 @@ export async function before(m, { usedPrefix }) {
       return dp[a.length][b.length]
     }
 
-    // Generamos sugerencias
     const similares = allCommands
       .map(cmd => {
         const dist = levenshteinDistance(command, cmd)
@@ -51,7 +58,7 @@ export async function before(m, { usedPrefix }) {
       })
       .filter(r => r.sim > 0)
       .sort((a, b) => b.sim - a.sim)
-      .slice(0, 3) // máximo 3 sugerencias
+      .slice(0, 3)
 
     let text = `⌗ _*Comando no reconocido*_\n> Usa *${usedPrefix}menu* para ver los comandos disponibles.\n`
     if (similares.length) {
@@ -59,7 +66,8 @@ export async function before(m, { usedPrefix }) {
       text += similares.map(s => `> _${usedPrefix + s.cmd}_ (${s.sim}% coincidencia)`).join('\n')
     }
 
-    await m.reply(text)
+    // ⚠ Aquí usamos conn.sendMessage para garantizar que siempre se envíe
+    await conn.sendMessage(m.chat, { text }, { quoted: m })
   } catch (err) {
     console.error('Error en before:', err)
   }
