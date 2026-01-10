@@ -37,6 +37,7 @@ if (m.isGroup) {
             categorias[tag].push(...helps)
         }
     }
+      m.react(e)
 let pais = `${info.flag} ${info.country}`
     let text = `${e} _Hola ${m.pushName}_ ¿Cómo estás?\n\n\`❒ᴄᴏɴᴛᴇxᴛ-ɪɴғᴏ☔\`
 ┌────────────
