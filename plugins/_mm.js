@@ -163,12 +163,69 @@ let pais = `${info.flag} ${info.country}`
     }
 
     // --- Envío del mensaje ---
-      m.react(e)
+      const thumbnail = await (await fetch(icono)).buffer();
+        const random = Math.floor(Math.random() * 3);
+        const gif = [
+  "https://raw.githubusercontent.com/edar123/im/main/media/gif.mp4",
+  "https://raw.githubusercontent.com/edar123/im/main/media/giff.mp4",
+  "https://raw.githubusercontent.com/edar123/im/main/media/gifff.mp4",
+  "https://raw.githubusercontent.com/edar123/im/main/media/gif4.mp4"
+][Math.floor(Math.random() * 4)];
+      if (random === 0) {
+        await conn.sendMessage(
+    m.chat,
+    {
+        text: text,
+        contextInfo: {
+            externalAdReply: {
+                title: wm,
+                body: textbot,
+                thumbnailUrl: redes,
+                thumbnail,
+                sourceUrl: redes,
+                mediaType: 1
+            }
+        }
+    },
+    { quoted: m }
+)
+        return;
+      }
+
+      if (random === 1) {
+      await conn.sendMessage(m.chat, {
+      video: { url: gif },
+      gifPlayback: true,
+      caption: text,
+      mentions: [m.sender],
+      contextInfo: {
+        mentionedJid: [m.sender],
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: channelRD.id,
+          newsletterName: channelRD.name,
+          serverMessageId: -1,
+        },
+        externalAdReply: {
+          title: `🕒 Runtime ${run}`,
+          body: textbot,
+          thumbnailUrl: redes,
+          thumbnail,
+          sourceUrl: redes,
+          mediaType: 1,
+        },
+      },
+    }, { quoted: m })
+    return;
+  }
+  if (random === 2) {
+      //😈
     await conn.relayMessage(
       m.chat,
       { viewOnceMessage: { message: { interactiveMessage: nativeFlowPayload } } },
       { quoted: m }
     )
+  }
   } catch (e) {
     console.error('Error al generar mensaje interactivo:', e)
     await conn.reply(m.chat, `❌ Error al generar mensaje:\n${e.message}`, m)
