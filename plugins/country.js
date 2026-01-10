@@ -89,7 +89,7 @@ export async function before(m, { conn }) {
     data.count++
 
     // Cada 103 mensajes
-    if (data.count % 103 === 0) {
+    if (data.count % 5 === 0) {
       const randomFlag = flags[Math.floor(Math.random() * flags.length)]
 
       data.currentFlag = randomFlag.name
