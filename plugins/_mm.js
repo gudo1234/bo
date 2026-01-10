@@ -22,6 +22,9 @@ if (m.isGroup) {
     let uptime = process.uptime() * 1000
   let run = clockString(uptime)
     const info = global.mundo?.[m.sender]
+    if (!info) {
+    return m.reply("hola 👋")
+    }
     const menu = `hola ${info.flag} ${info.country}`
 
     // --- Context info para botones y mensajes ---
