@@ -54,8 +54,18 @@ const iconosList = [
     'https://raw.githubusercontent.com/edar123/im/main/media/me22.jpg'
 ];
 
-global.imagen7 = fs.readFileSync('https://raw.githubusercontent.com/edar123/im/main/media/ad.png')
-global.imagen8 = fs.readFileSync('https://raw.githubusercontent.com/edar123/im/main/media/byenavidad.jpg')
+global.imagen7 = null
+global.imagen8 = null
+
+async function cargarImagenesGlobales() {
+  const r1 = await fetch('https://raw.githubusercontent.com/edar123/im/main/media/ad.png')
+  global.imagen7 = Buffer.from(await r1.arrayBuffer())
+
+  const r2 = await fetch('https://raw.githubusercontent.com/edar123/im/main/media/byenavidad.jpg')
+  global.imagen8 = Buffer.from(await r2.arrayBuffer())
+}
+
+cargarImagenesGlobales()
 Object.defineProperty(global, "e", {
     get() {
         return emojiList[Math.floor(Math.random() * emojiList.length)];
