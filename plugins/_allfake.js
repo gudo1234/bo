@@ -98,8 +98,7 @@ global.fake = {
       },
       quoted: m
 }
-        }
-global.rwait = '🕒'
+  global.rwait = '🕒'
 global.done = '✅'
 global.error = '✖️'
 global.msm = '⚠︎'
@@ -124,3 +123,4 @@ global.msm = '⚠︎'
     global.s4 = '⬭'
     global.s5 = '⬖'
     global.s = getRandom([global.s1, global.s2, global.s3, global.s4, global.s5])
+        }
