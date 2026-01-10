@@ -27,7 +27,7 @@ m.react('🖥️')
       },
       forwardingScore: false,
       externalAdReply: {
-        title: botname,
+        title: wm,
         body: textbot,
         thumbnailUrl: redes,
         thumbnail,
