@@ -38,7 +38,7 @@ if (m.isGroup) {
         }
     }
 let pais = `${info.flag} ${info.country}`
-    let text = `${e} _Hola ${m.pushName} ¿Cómo estás?\n\n\`❒ᴄᴏɴᴛᴇxᴛ-ɪɴғᴏ☔\`
+    let text = `${e} _Hola ${m.pushName}_ ¿Cómo estás?\n\n\`❒ᴄᴏɴᴛᴇxᴛ-ɪɴғᴏ☔\`
 ┌────────────
 │ 🌎 *País:* ${pais}
 │ 📱 *Sistema/Opr:* ${getDevice(m.key.id)}
