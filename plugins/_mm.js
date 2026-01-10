@@ -2,7 +2,7 @@ import fs from 'fs'
 import { join } from 'path'
 import Jimp from 'jimp';
 import fetch from 'node-fetch'
-mport { getDevice } from "@whiskeysockets/baileys"
+import { getDevice } from "@whiskeysockets/baileys"
 
 let handler = async (m, { conn, __dirname }) => {
 let groupName = ''
