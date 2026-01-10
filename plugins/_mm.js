@@ -112,7 +112,7 @@ let pais = `${info.flag} ${info.country}`
           { name: 'cta_copy', buttonParamsJson: '{"display_text":"Copiar Código","id":"123456789","copy_code":"Soy bien puto alv :v"}' },
           {
             name: 'cta_url',
-            buttonParamsJson: `{"display_text":"Canal de WhatsApp","url":"${global.canal}","merchant_url":"${global.canal}"}`
+            buttonParamsJson: `{"display_text":"Canal de WhatsApp","url":"https://whatsapp.com/channel/0029VaXHNMZL7UVTeseuqw3H","merchant_url":"https://whatsapp.com/channel/0029VaXHNMZL7UVTeseuqw3H"}`
           },
           {
             name: 'galaxy_message',
