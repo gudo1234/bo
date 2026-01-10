@@ -1,6 +1,26 @@
-import fs from 'fs'
-import path from 'path'
+let cachedCommands = []
 
+async function updateCachedCommands() {
+  try {
+    const pluginFiles = Object.values(global.plugins)
+    cachedCommands = pluginFiles
+      .flatMap(plugin => {
+        const handler = plugin.default || plugin
+        if (!handler || !handler.command) return []
+        return Array.isArray(handler.command) ? handler.command : [handler.command]
+      })
+      .filter(Boolean)
+      .map(c => c.toLowerCase())
+  } catch (e) {
+    console.error('Error actualizando cachedCommands:', e)
+    cachedCommands = []
+  }
+}
+
+// Llama esto después de cargar los plugins y cada vez que se recargue uno
+updateCachedCommands()
+
+// Antes de cada mensaje
 export async function before(m, { conn, usedPrefix }) {
   try {
     if (!m.text || !global.prefix.test(m.text)) return
@@ -10,29 +30,13 @@ export async function before(m, { conn, usedPrefix }) {
 
     const user = global.db.data.users[m.sender]
 
-    // Leemos todos los plugins directamente desde la carpeta
-    const pluginsPath = path.join(process.cwd(), 'plugins')
-    const pluginFiles = fs.readdirSync(pluginsPath).filter(f => f.endsWith('.js'))
-
-    const allCommands = []
-
-    for (const file of pluginFiles) {
-      const pluginPath = path.join(pluginsPath, file)
-      const pluginModule = await import(`file://${pluginPath}`)
-      const handler = pluginModule.default || pluginModule
-      if (handler && handler.command) {
-        const cmds = Array.isArray(handler.command) ? handler.command : [handler.command]
-        allCommands.push(...cmds.map(c => c.toLowerCase()))
-      }
-    }
-
-    // Si el comando existe, incrementamos contador
-    if (allCommands.includes(command)) {
+    // Si existe el comando, incrementamos contador
+    if (cachedCommands.includes(command)) {
       user.commands = (user.commands || 0) + 1
       return
     }
 
-    // Función Levenshtein para sugerencias
+    // Levenshtein para sugerencias
     const levenshteinDistance = (a, b) => {
       const dp = Array.from({ length: a.length + 1 }, (_, i) => [i])
       for (let j = 1; j <= b.length; j++) dp[0][j] = j
@@ -49,7 +53,7 @@ export async function before(m, { conn, usedPrefix }) {
       return dp[a.length][b.length]
     }
 
-    const similares = allCommands
+    const similares = cachedCommands
       .map(cmd => {
         const dist = levenshteinDistance(command, cmd)
         const maxLen = Math.max(command.length, cmd.length)
@@ -66,9 +70,14 @@ export async function before(m, { conn, usedPrefix }) {
       text += similares.map(s => `> _${usedPrefix + s.cmd}_ (${s.sim}% coincidencia)`).join('\n')
     }
 
-    // ⚠ Aquí usamos conn.sendMessage para garantizar que siempre se envíe
     await conn.sendMessage(m.chat, { text }, { quoted: m })
   } catch (err) {
     console.error('Error en before:', err)
   }
+}
+
+// Cada vez que se recargue un plugin
+global.reload = async (_ev, filename) => {
+  // ...tu código de reload...
+  await updateCachedCommands() // actualiza la cache
 }
