@@ -2394,15 +2394,7 @@ if (!chat.autoband || !m.isGroup) return !0;
 if (m.quoted && m.quoted.id === userMessageCount[m.chat].questionMessage.id && m.text.toLowerCase() === userMessageCount[m.chat].currentFlag.toLowerCase()) {
     m.react('🎉');
 
-    // Obtener lista de participantes
-    let participants = (await conn.groupMetadata(m.chat)).participants
-    // Filtrar miembros válidos (excluye al bot y al autor del mensaje si deseas)
-    let others = participants.filter(p => p.id !== m.sender && p.id !== conn.user.jid);
-    // Elegir uno al azar
-    let random = others[Math.floor(Math.random() * others.length)];
-    let rewardTag = random?.id || m.sender; // fallback por si algo falla
-
-    await conn.reply(m.chat, `*¡Correcto, ${m.pushName}!* 🎉 La bandera es de *${userMessageCount[m.chat].currentFlag}* ${userMessageCount[m.chat].currentFlag2} y su código es: *${userMessageCount[m.chat].currentFlag3}*.\n\n🎁 *Recompensa:* se la tienes que chupar a @${rewardTag.split('@')[0]}`, m, {
+    await conn.reply(m.chat, `*¡Correcto, ${m.pushName}!* 🎉 La bandera es de *${userMessageCount[m.chat].currentFlag}* ${userMessageCount[m.chat].currentFlag2} y su código es: *${userMessageCount[m.chat].currentFlag3}*`, m, {
         mentions: [rewardTag]
     });
 
