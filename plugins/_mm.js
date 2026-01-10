@@ -4,7 +4,7 @@ import Jimp from 'jimp';
 import fetch from 'node-fetch'
 import { getDevice } from "@whiskeysockets/baileys"
 
-let handler = async (m, { conn, __dirname }) => {
+let handler = async (m, { conn, usedPrefix, __dirname }) => {
 let groupName = ''
 if (m.isGroup) {
     const metadata = await conn.groupMetadata(m.chat)
