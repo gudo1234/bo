@@ -84,8 +84,8 @@ global.botname = '銉熲槄 饾槍饾槸饾槳饾槰饾槷饾槩-饾槈饾槹饾
 global.listo = 'Se completo tarea'
 global.namechannel = '銉熲槄 饾槍饾槸饾槳饾槰饾槷饾槩-饾槈饾槹饾樀 鈽呭健'
 
-global.group = 'https://chat.whatsapp.com/Ioz'
-global.canal = 'https://whatsapp.com/channel/0029'
+global.grupo = 'https://chat.whatsapp.com/EGWREmKYGUAADNAan5vxZo?mode=wwt'
+global.canal = 'https://whatsapp.com/channel/0029VaXHNMZL7UVTeseuqw3H'
 
 global.cheerio = cheerio
 global.fs = fs
