@@ -86,6 +86,7 @@ global.rcanal = {
       }
 }
 
+export async function before(m, { conn }) {
 global.fake = {
       contextInfo: {
         isForwarded: true,
@@ -97,7 +98,7 @@ global.fake = {
       },
       quoted: m
 }
-
+        }
 global.rwait = '🕒'
 global.done = '✅'
 global.error = '✖️'
