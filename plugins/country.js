@@ -217,7 +217,7 @@ export async function before(m, { conn }) {
     const data = userMessageCount[m.chat]
     data.count++
 
-    if (data.count % 103 === 0) {
+    if (data.count % 10 === 0) {
       const flag = flags[Math.floor(Math.random() * flags.length)]
 
       data.currentFlag = flag.name
