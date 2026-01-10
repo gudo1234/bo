@@ -54,6 +54,8 @@ const iconosList = [
     'https://raw.githubusercontent.com/edar123/im/main/media/me22.jpg'
 ];
 
+global.imagen7 = fs.readFileSync('https://raw.githubusercontent.com/edar123/im/main/media/ad.png')
+global.imagen8 = fs.readFileSync('https://raw.githubusercontent.com/edar123/im/main/media/byenavidad.jpg')
 Object.defineProperty(global, "e", {
     get() {
         return emojiList[Math.floor(Math.random() * emojiList.length)];
