@@ -1,22 +1,25 @@
-import fetch from 'node-fetch'
 import PhoneNumber from 'awesome-phonenumber'
 
 export async function before(m, { conn }) {
   try {
     global.userData = global.userData || {}
 
-    let sender = m.sender
+    let realJid = m.sender
 
-    // Resolver @lid en grupos
-    if (sender?.endsWith('@lid') && m.isGroup) {
+    // Resolver @lid
+    if (realJid?.endsWith('@lid') && m.isGroup) {
       const metadata = await conn.groupMetadata(m.chat).catch(() => null)
       const match = metadata?.participants?.find(
-        p => p.id === sender && p.jid
+        p => p.id === realJid && p.jid
       )
-      if (match) sender = match.jid
+      if (match) realJid = match.jid
     }
 
-    const realNum = sender.split('@')[0].replace(/\D/g, '')
+    // Guardamos el mapeo ORIGINAL → REAL
+    global.userJidMap = global.userJidMap || {}
+    global.userJidMap[m.sender] = realJid
+
+    const realNum = realJid.split('@')[0].replace(/\D/g, '')
     const pn = PhoneNumber('+' + realNum)
 
     const region = pn.getRegionCode() || 'ZZ'
@@ -35,8 +38,8 @@ export async function before(m, { conn }) {
       }
     } catch {}
 
-    global.userData[sender] = {
-      jid: sender,
+    global.userData[realJid] = {
+      jid: realJid,
       numero: '+' + realNum,
       region,
       country,
