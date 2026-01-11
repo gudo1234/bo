@@ -76,13 +76,13 @@ async function start(files) {
       console.log(chalk.gray('[TEST MODE] No se espera input de consola.'))
     }
 
-global.rutaJadiBot = join(__dirname, `./${jadi}`)
+global.rutaJadiBot = join(__dirname, `./${JadiBots}`)
 if (global.yukiJadibts) {
 if (!existsSync(global.rutaJadiBot)) {
 mkdirSync(global.rutaJadiBot, { recursive: true })
-console.log(chalk.bold.cyan(`ꕥ La carpeta: ${jadi} se creó correctamente.`))
+console.log(chalk.bold.cyan(`ꕥ La carpeta: ${JadiBots} se creó correctamente.`))
 } else {
-console.log(chalk.bold.cyan(`ꕥ La carpeta: ${jadi} ya está creada.`))
+console.log(chalk.bold.cyan(`ꕥ La carpeta: ${JadiBots} ya está creada.`))
 }
 const readRutaJadiBot = readdirSync(rutaJadiBot)
 if (readRutaJadiBot.length > 0) {
