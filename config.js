@@ -14,6 +14,8 @@ global.owner = [
 
 global.mods = []
 global.prems = []
+global.jadi = 'JadiBots' 
+global.yukiJadibts = true
 //❤️❤️❤️❤️
 const emojiList = [
     "🌱", "🪴", "⭐", "🍁", "⚡",
