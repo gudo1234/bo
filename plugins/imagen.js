@@ -1,14 +1,13 @@
-import fetch from 'node-fetch'
-import { googleImage } from '@bochilteam/scraper'
+import fetch from "node-fetch"
 import {
   generateWAMessageFromContent,
   generateWAMessage,
   delay
-} from '@whiskeysockets/baileys'
+} from "@whiskeysockets/baileys"
 
 async function sendAlbumMessage(conn, jid, medias, options = {}) {
-  if (typeof jid !== "string") throw new TypeError("jid must be string")
-  if (!Array.isArray(medias) || medias.length < 2) throw new RangeError("Minimum 2 media required")
+  if (!Array.isArray(medias) || medias.length < 2)
+    throw new RangeError("Se requieren mínimo 2 imágenes")
 
   const caption = options.caption || ""
   const wait = !isNaN(options.delay) ? options.delay : 500
@@ -17,80 +16,112 @@ async function sendAlbumMessage(conn, jid, medias, options = {}) {
     jid,
     {
       albumMessage: {
-        expectedImageCount: medias.filter(m => m.type === "image").length,
-        expectedVideoCount: medias.filter(m => m.type === "video").length,
-        ...(options.quoted ? {
-          contextInfo: {
-            remoteJid: options.quoted.key.remoteJid,
-            fromMe: options.quoted.key.fromMe,
-            stanzaId: options.quoted.key.id,
-            participant: options.quoted.key.participant || options.quoted.key.remoteJid,
-            quotedMessage: options.quoted.message,
-          },
-        } : {})
+        expectedImageCount: medias.length,
+        expectedVideoCount: 0,
+        ...(options.quoted
+          ? {
+              contextInfo: {
+                remoteJid: options.quoted.key.remoteJid,
+                fromMe: options.quoted.key.fromMe,
+                stanzaId: options.quoted.key.id,
+                participant:
+                  options.quoted.key.participant ||
+                  options.quoted.key.remoteJid,
+                quotedMessage: options.quoted.message
+              }
+            }
+          : {})
       }
     },
     {}
   )
 
-  await conn.relayMessage(album.key.remoteJid, album.message, { messageId: album.key.id })
+  await conn.relayMessage(album.key.remoteJid, album.message, {
+    messageId: album.key.id
+  })
 
   for (let i = 0; i < medias.length; i++) {
-    const { type, data } = medias[i]
     try {
       const msg = await generateWAMessage(
         album.key.remoteJid,
-        { [type]: data, ...(i === 0 ? { caption } : {}) },
+        {
+          image: medias[i],
+          ...(i === 0 ? { caption } : {})
+        },
         { upload: conn.waUploadToServer }
       )
-      msg.message.messageContextInfo = { messageAssociation: { associationType: 1, parentMessageKey: album.key } }
-      await conn.relayMessage(msg.key.remoteJid, msg.message, { messageId: msg.key.id })
+
+      msg.message.messageContextInfo = {
+        messageAssociation: {
+          associationType: 1,
+          parentMessageKey: album.key
+        }
+      }
+
+      await conn.relayMessage(msg.key.remoteJid, msg.message, {
+        messageId: msg.key.id
+      })
+
       await delay(wait)
     } catch (err) {
-      console.warn(`[WARN IMG] No se pudo enviar la imagen ${i + 1}:`, err.message)
-      continue
+      console.warn("Error enviando imagen:", err.message)
     }
   }
-
-  return album
 }
 
-const handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) {
-    conn.reply(m.chat, `${e} _*Uso Correcto:*_ ${usedPrefix + command} carros`, m, rcanal)
-    return
-  }
+const handler = async (m, { conn, args }) => {
+  const text = args.join(" ")
+  const chat = m.chat
 
-  m.react('🕒')
+  if (!text)
+    return m.reply(`${e} *Uso correcto:* .imagen <texto>\nEjemplo: .imagen neko`)
+
+  await m.react("🕒")
 
   try {
-    const res = await googleImage(text)
-    const results = await res
-    if (!results || !Array.isArray(results) || results.length === 0)
-      throw new Error('No se encontraron imágenes')
+    const MAX = 5
+    const buffers = []
 
-    const maxImages = Math.min(results.length, 15)
-    const medias = results.slice(0, maxImages).map(url => ({
-      type: 'image',
-      data: { url }
-    }))
+    for (let i = 0; i < MAX; i++) {
+      const url = `https://api.stellarwa.xyz/search/googleimagen?query=${encodeURIComponent(
+        text
+      )}&key=stellar-wsRJSBsk`
 
-    await sendAlbumMessage(conn, m.chat, medias, {
-      caption: `${e} *Resultado De:* ${text}`,
+      const res = await fetch(url)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+      const buf = Buffer.from(await res.arrayBuffer())
+      if (!buffers.some(b => b.equals(buf))) buffers.push(buf)
+    }
+
+    if (buffers.length === 1) {
+      await conn.sendMessage(
+        chat,
+        {
+          image: buffers[0],
+          caption: `${e} *Resultado para:* ${text}`
+        },
+        { quoted: m }
+      )
+      return await m.react("✅")
+    }
+
+    await sendAlbumMessage(conn, chat, buffers, {
+      caption: `${e} *Resultados para:* ${text}`,
       quoted: m
     })
 
-    m.react('✅')
+    await m.react("✅")
 
-  } catch (e) {
-    console.error('[ERROR IMG]', e)
-    m.reply(`❌ Ocurrió un error al obtener las imágenes.\n\n${e.message}`)
+  } catch (err) {
+    console.error("[IMG ERROR]", err)
+    m.reply(`${e} *Ocurrió un error:*\n${err.message}`)
   }
 }
 
-handler.help = ["imagen"]
+handler.help = ["imagen <texto>"]
 handler.tags = ["descargas"]
-handler.command = ['image', 'imagen']
+handler.command = ["imagen", "image"]
 handler.group = true
 
 export default handler
