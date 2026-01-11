@@ -7,6 +7,7 @@ import cfonts from 'cfonts'
 import { createInterface } from 'readline'
 import yargs from 'yargs'
 import chalk from 'chalk'
+import './config.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(__dirname)
