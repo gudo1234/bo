@@ -1,9 +1,17 @@
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
+
 import { join, dirname } from 'path'
 import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
 import { setupMaster, fork } from 'cluster'
-import { watchFile, unwatchFile } from 'fs'
+import {
+  watchFile,
+  unwatchFile,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  statSync
+} from 'fs'
 import cfonts from 'cfonts'
 import { createInterface } from 'readline'
 import yargs from 'yargs'
@@ -15,14 +23,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(__dirname)
 const { say } = cfonts
 
-// Mostrar banner
+// Banner
 say('Enigma', {
   font: 'chrome',
   align: 'center',
   gradient: ['red', 'magenta']
 })
 
-// Setup readline
+// Readline
 const rl = createInterface(process.stdin, process.stdout)
 const argsFromCli = process.argv.slice(2)
 const opts = yargs(argsFromCli).exitProcess(false).parse()
@@ -35,9 +43,8 @@ async function start(files) {
 
   for (const file of files) {
     const filePath = join(__dirname, file)
-    
+
     setupMaster({ exec: filePath, args: argsFromCli })
-    
     const child = fork()
 
     child.on('message', msg => {
@@ -63,12 +70,10 @@ async function start(files) {
           start(files)
         })
       } else {
-        // Si salió normalmente, volver a iniciar
         start(files)
       }
     })
 
-    // Asegurar que solo se agregue 1 listener a readline
     if (!rl.listenerCount('line')) {
       rl.on('line', (line) => {
         child.send(line.trim())
@@ -79,44 +84,44 @@ async function start(files) {
       console.log(chalk.gray('[TEST MODE] No se espera input de consola.'))
     }
 
-const jadi = "JadiBots"
+    // ===============================
+    //   SISTEMA JADIBOT
+    // ===============================
 
-global.rutaJadiBot = join(__dirname, jadi)
+    const jadi = "JadiBots"
+    global.rutaJadiBot = join(__dirname, jadi)
 
-if (yukiJadiBot) {
-  if (!existsSync(global.rutaJadiBot)) {
-    mkdirSync(global.rutaJadiBot, { recursive: true })
-    console.log(chalk.cyan(`ꕥ La carpeta: ${jadi} se creó correctamente.`))
-  } else {
-    console.log(chalk.cyan(`ꕥ La carpeta: ${jadi} ya está creada.`))
-  }
+    if (!existsSync(global.rutaJadiBot)) {
+      mkdirSync(global.rutaJadiBot, { recursive: true })
+      console.log(chalk.cyan(`ꕥ La carpeta: ${jadi} se creó correctamente.`))
+    } else {
+      console.log(chalk.cyan(`ꕥ La carpeta: ${jadi} ya está creada.`))
+    }
 
-  const readRutaJadiBot = readdirSync(global.rutaJadiBot)
+    const readRutaJadiBot = readdirSync(global.rutaJadiBot)
 
-  if (readRutaJadiBot.length > 0) {
-    const creds = 'creds.json'
+    if (readRutaJadiBot.length > 0) {
+      const creds = 'creds.json'
 
-    for (const gjbts of readRutaJadiBot) {
-      const botPath = join(global.rutaJadiBot, gjbts)
+      for (const gjbts of readRutaJadiBot) {
+        const botPath = join(global.rutaJadiBot, gjbts)
 
-      if (existsSync(botPath) && statSync(botPath).isDirectory()) {
-        const readBotPath = readdirSync(botPath)
+        if (existsSync(botPath) && statSync(botPath).isDirectory()) {
+          const readBotPath = readdirSync(botPath)
 
-        if (readBotPath.includes(creds)) {
-          yukiJadiBot({
-            pathYukiJadiBot: botPath,
-            m: null,
-            conn,
-            args: '',
-            usedPrefix: '/',
-            command: 'serbot'
-          })
+          if (readBotPath.includes(creds)) {
+            yukiJadiBot({
+              pathYukiJadiBot: botPath,
+              m: null,
+              conn: null,
+              args: '',
+              usedPrefix: '/',
+              command: 'serbot'
+            })
+          }
         }
       }
     }
-  }
-}
-    
   }
 }
 
