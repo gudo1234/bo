@@ -79,24 +79,43 @@ async function start(files) {
       console.log(chalk.gray('[TEST MODE] No se espera input de consola.'))
     }
 
-global.rutaJadiBot = join(__dirname, `./${jadi}`)
-if (global.yukiJadibts) {
-if (!existsSync(global.rutaJadiBot)) {
-mkdirSync(global.rutaJadiBot, { recursive: true })
-console.log(chalk.bold.cyan(`ꕥ La carpeta: ${jadi} se creó correctamente.`))
-} else {
-console.log(chalk.bold.cyan(`ꕥ La carpeta: ${jadi} ya está creada.`))
+const jadi = "JadiBots"
+
+global.rutaJadiBot = join(__dirname, jadi)
+
+if (yukiJadiBot) {
+  if (!existsSync(global.rutaJadiBot)) {
+    mkdirSync(global.rutaJadiBot, { recursive: true })
+    console.log(chalk.cyan(`ꕥ La carpeta: ${jadi} se creó correctamente.`))
+  } else {
+    console.log(chalk.cyan(`ꕥ La carpeta: ${jadi} ya está creada.`))
+  }
+
+  const readRutaJadiBot = readdirSync(global.rutaJadiBot)
+
+  if (readRutaJadiBot.length > 0) {
+    const creds = 'creds.json'
+
+    for (const gjbts of readRutaJadiBot) {
+      const botPath = join(global.rutaJadiBot, gjbts)
+
+      if (existsSync(botPath) && statSync(botPath).isDirectory()) {
+        const readBotPath = readdirSync(botPath)
+
+        if (readBotPath.includes(creds)) {
+          yukiJadiBot({
+            pathYukiJadiBot: botPath,
+            m: null,
+            conn,
+            args: '',
+            usedPrefix: '/',
+            command: 'serbot'
+          })
+        }
+      }
+    }
+  }
 }
-const readRutaJadiBot = readdirSync(rutaJadiBot)
-if (readRutaJadiBot.length > 0) {
-const creds = 'creds.json'
-for (const gjbts of readRutaJadiBot) {
-const botPath = join(rutaJadiBot, gjbts)
-if (existsSync(botPath) && statSync(botPath).isDirectory()) {
-const readBotPath = readdirSync(botPath)
-if (readBotPath.includes(creds)) {
-yukiJadiBot({ pathYukiJadiBot: botPath, m: null, conn, args: '', usedPrefix: '/', command: 'serbot' })
-}}}}}
     
   }
 }
