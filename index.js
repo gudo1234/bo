@@ -8,6 +8,7 @@ import { createInterface } from 'readline'
 import yargs from 'yargs'
 import chalk from 'chalk'
 import './config.js'
+import { yukiJadiBot } from './plugins/sockets-serbot.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(__dirname)
