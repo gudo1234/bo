@@ -85,6 +85,9 @@ Object.defineProperty(global, "icono", {
 });
 global.a1 = `╭┈۫۫۫۫۫╌۪۪۪۪۪۪۪۪֠╼◈¨(`
 global.a2 = `)¨◈۫۫۫۫۫۫۫۫۫╾֩┈۪۪۪۪╮`
+global.ch = {
+ch1: "120363401404146384@newsletter"
+}
 //✅✅✅✅
 
 global.packname = '銉熲槄 饾槍饾槸饾槳饾槰饾槷饾槩-饾槈饾槹饾樀 鈽呭健'
