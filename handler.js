@@ -169,7 +169,7 @@ export async function handler(chatUpdate) {
 
     m.plugin = name
 
-    if (chat.isBanned && name!=='group-unbanchat.js') return
+    if (chat.isBanned && name!=='unbanchat.js') return
     if (user.banned && name!=='owner-unbanuser.js') return
     if (settings.banned && name!=='owner-unbanbot.js') return
 
