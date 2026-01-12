@@ -34,7 +34,7 @@ async function xvideosSearch(query) {
     });
 }
 
-let handler = async (m, { sock, args, usedPrefix }) => {
+let handler = async (m, { conn, args, usedPrefix }) => {
 
     // 🔞 LÓGICA NSFW EXACTA MEMORIZADA
     if (!db.data.chats[m.chat].nsfw && m.isGroup) {
@@ -70,8 +70,8 @@ let handler = async (m, { sock, args, usedPrefix }) => {
 
         const { title, dl_url } = await Starlights.xvideosdl(finalLink);
 
-        await sock.sendMessage(
-            m.key.remoteJid,
+        await conn.sendMessage(
+            m.chat,
             {
                 document: { url: dl_url },
                 mimetype: "video/mp4",
