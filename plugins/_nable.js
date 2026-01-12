@@ -7,7 +7,6 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin })
 
   const opcionesValidas = {
     welcome: 'chat',
-    autoaceptar: 'chat',
     soloadmin: 'chat',
     nsfw: 'chat',
     detect: 'chat',
