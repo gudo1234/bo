@@ -4,7 +4,7 @@ if (!text) return conn.reply(m.chat, `${e} Escribe tu nombre y el nombre de la o
 let [text1, ...text2] = text.split(' ')
 
 text2 = (text2 || []).join(' ')
-if (!text2) return conn.reply(m.chat, `${emoji2} Escribe el nombre de la segunda persona.`, m)
+if (!text2) return conn.reply(m.chat, `${e} Escribe el nombre de la segunda persona.`, m)
 let love = `❤️ *Tu oportunidad de enamorarte de *${text2}* es de ${Math.floor(Math.random() * 100)}% 👩🏻‍❤️‍👨🏻`
 
 m.reply(love, null, { mentions: conn.parseMention(love) })
