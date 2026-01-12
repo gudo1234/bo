@@ -10,12 +10,14 @@ let handler = async (m, { conn, args }) => {
 
         if (enviando) return;
         enviando = true;
+
         await m.react("🕒");
 
-        const url = `https://api.delirius.store/download/twitterv2?url=${encodeURIComponent(args[0])}`;
-        const res = await (await fetch(url)).json();
+        // URL de la API Delirius v2
+        const apiURL = `https://api.delirius.store/download/twitterv2?url=${encodeURIComponent(args[0])}`;
+        const res = await (await fetch(apiURL)).json();
 
-        // ✅ Corregimos la ruta: res.data.media
+        // Validaciones
         if (!res.status || !res.data || !res.data.media || res.data.media.length === 0) {
             return m.reply(`✨ Este tweet no contiene videos o imágenes descargables.`);
         }
@@ -24,7 +26,7 @@ let handler = async (m, { conn, args }) => {
         const caption = res.data.description || `${e} _Media de Twitter (X)_`;
 
         if (mediaItem.type === "video") {
-            // Elegimos el video con mayor bitrate
+            // Elegir video de mayor bitrate
             const bestVideo = mediaItem.videos.sort((a, b) => b.bitrate - a.bitrate)[0];
 
             await conn.sendFile(
