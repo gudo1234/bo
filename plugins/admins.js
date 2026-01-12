@@ -22,6 +22,7 @@ const handler = async (m, { conn, participants, groupMetadata, args }) => {
       return m.reply("❌ No se encontraron administradores.");
 
     const texto = args.length ? args.join(" ") : "¡Atención administradores!";
+
     const listado = admins
       .map(jid => `@${jid.split("@")[0]}`)
       .join("\n");
@@ -32,13 +33,12 @@ ${listado}
 
 > Mensaje:
 » ${texto}`.trim();
+
     let thumbBuffer;
     try {
       const pp = await conn.profilePictureUrl(m.chat, "image");
       thumbBuffer = await (await fetch(pp)).buffer();
-    } catch {
-      thumbBuffer = undefined;
-    }
+    } catch {}
 
     await conn.sendMessage(
       m.chat,
@@ -61,7 +61,7 @@ ${listado}
 
   } catch (e) {
     console.error("[ADMINS ERROR]", e);
-    m.reply(`${e} Ocurrió un error al mencionar a los administradores.`);
+    m.reply(`${e} Ocurrió un error.`);
   }
 };
 
