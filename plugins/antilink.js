@@ -30,10 +30,6 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
     const delet = m.key.participant;
     const bang = m.key.id;
 
-    const groupAdmins = participants
-        .filter(p => p.admin || p.admin === "superadmin")
-        .map(p => p.id);
-
     if (isAdmin || isOwner || m.fromMe || isROwner) return;
 
     const isGroupLink = linkRegex.exec(m.text) || linkRegex1.exec(m.text);
@@ -44,8 +40,17 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
         if (m.text.includes(linkThisGroup)) return true;
     }
 
-    const realSender = getRealNumber({ id: sender }) ? `${getRealNumber({ id: sender })}@s.whatsapp.net` : sender;
-    if (groupAdmins.includes(realSender)) return true;
+    // Normalizar los admins
+    const adminRealNumbers = participants
+        .filter(p => p.admin || p.admin === "superadmin")
+        .map(p => {
+            const real = getRealNumber(p);
+            return real ? `${real}@s.whatsapp.net` : p.id;
+        });
+
+    const senderReal = getRealNumber({ id: sender }) ? `${getRealNumber({ id: sender })}@s.whatsapp.net` : sender;
+
+    if (adminRealNumbers.includes(senderReal)) return true; // ✅ Si es admin, no eliminar
 
     await conn.sendMessage(
         m.chat,
