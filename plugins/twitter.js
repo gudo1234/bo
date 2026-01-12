@@ -19,7 +19,7 @@ let handler = async (m, { conn, args }) => {
         const res = apiResponse.data;
 
         if (!res.status || !res.data || !res.data.media || res.data.media.length === 0) {
-            return m.reply(`${e} 🌊 Este tweet no contiene videos o imágenes descargables.`);
+            return m.reply(`${e} Este tweet no contiene videos o imágenes descargables.`);
         }
 
         const mediaItem = res.data.media[0]; // Tomamos el primer media
