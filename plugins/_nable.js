@@ -14,7 +14,6 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin })
     antilink: 'chat',
     antifake: 'chat',
     antibot: 'chat',
-    antibot2: 'chat',
     autosticker: 'chat',
     autoband: 'chat',
     audio: 'chat',
@@ -81,8 +80,18 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin })
   conn.reply(m.chat, `✅ La función *${type}* fue *${valor ? 'activada' : 'desactivada'}* correctamente ${scope === 'bot' ? 'para todo el bot' : 'en este chat'}.`, m)
 }
 
-handler.help = ['on <opción>', 'off <opción>', '<opción> (ver estado)', '<opción> on/off']
-handler.tags = ['nable']
+handler.help = [
+  'on', 'off', 'enable', 'disable',
+  'welcome', 'bienvenida',
+  'autoaceptar', 'soloadmin',
+  'nsfw', 'modohorny',
+  'detect', 'antilink',
+  'antifake', 'antibot',
+  'autosticker',
+  'autoband', 'antiprivado',
+  'jadibotmd', 'boton',
+  'audio']
+handler.tags = ['configuración']
 handler.command = [
   'on', 'off', 'enable', 'disable',
   'welcome', 'bienvenida',
@@ -90,7 +99,7 @@ handler.command = [
   'nsfw', 'modohorny',
   'detect', 'antilink',
   'antifake', 'antibot',
-  'antibot2', 'autosticker',
+  'autosticker',
   'autoband', 'antiprivado',
   'jadibotmd', 'boton',
   'audio']
