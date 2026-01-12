@@ -12,7 +12,7 @@ let handler = async (m, { conn, __dirname }) => {
   if (!m.messageStubType || ![27, 28, 32].includes(m.messageStubType)) return
 
   const isWelcome = m.messageStubType === 27
-  const isWelcome = m.messageStubType === 28 || m.messageStubType === 32
+  const isBye = m.messageStubType === 28 || m.messageStubType === 32
   let user = m.messageStubParameters?.[0]
   if (!user) return
   if (user.endsWith('@lid') && m.isGroup) {
