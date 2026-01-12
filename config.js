@@ -92,14 +92,14 @@ ch1: "120363401404146384@newsletter"
 }
 //✅✅✅✅
 
-global.packname = '銉熲槄 饾槍饾槸饾槳饾槰饾槷饾槩-饾槈饾槹饾樀 鈽呭健'
+global.packname = "🤖⃧►iʑυвöτ◃2.0▹"
 global.textbot = "Bot de mierd4";
 global.author = "🍁̶͢͞▻⟅ẹ𝆊ϋ⟆٭⳺֟፝͜⳻٭.er/k";
 global.wm = "🤖⃧►iʑυвöτ◃2.0▹"
 global.wait = 'Espera Por Favot'
-global.botname = '銉熲槄 饾槍饾槸饾槳饾槰饾槷饾槩-饾槈饾槹饾樀 鈽呭健'
+global.botname = '🤖⃧►iʑυвöτ◃2.0▹'
 global.listo = 'Se completo tarea'
-global.namechannel = '銉熲槄 饾槍饾槸饾槳饾槰饾槷饾槩-饾槈饾槹饾樀 鈽呭健'
+global.namechannel = '🤖⃧►iʑυвöτ◃2.0▹'
 
 global.grupo = 'https://chat.whatsapp.com/EGWREmKYGUAADNAan5vxZo?mode=wwt'
 global.canal = 'https://whatsapp.com/channel/0029VaXHNMZL7UVTeseuqw3H'
