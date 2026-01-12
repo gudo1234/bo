@@ -81,9 +81,8 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin })
 
 handler.help = [
   'on', 'off', 'enable', 'disable',
-  'welcome', 'bienvenida',
-  'autoaceptar', 'soloadmin',
-  'nsfw', 'modohorny',
+  'welcome', 'bienvenida', 'soloadmin',
+  'nsfw',
   'detect', 'antilink',
   'antifake', 'antibot',
   'autosticker',
@@ -95,7 +94,7 @@ handler.command = [
   'on', 'off', 'enable', 'disable',
   'welcome', 'bienvenida',
   'autoaceptar', 'soloadmin',
-  'nsfw', 'modohorny',
+  'nsfw',
   'detect', 'antilink',
   'antifake', 'antibot',
   'autosticker',
