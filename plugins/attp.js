@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
-import { sticker } from "../lib/sticker.js"; // tu función de sticker
+import { sticker } from "../lib/sticker.js";
 
-let handler = async (m, { conn, args, usedPrefix, command }) => {
+let handler = async (m, { conn, args }) => {
     const text = args.join(" ");
     if (!text) return m.reply(`${e} Ingresa un texto para crear el sticker animado.`);
     if (text.length > 25) {
@@ -11,18 +11,13 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     await m.react("🕒");
 
     try {
-        // Llamada a la API ATTP
         const apiUrl = `https://api.deline.web.id/maker/attp?text=${encodeURIComponent(text)}`;
         const res = await fetch(apiUrl);
 
         if (!res.ok) throw new Error("API no respondió correctamente");
 
         const stickerBuffer = Buffer.from(await res.arrayBuffer());
-
-        // Generar sticker con el nombre del usuario
         let stiker = await sticker(stickerBuffer, false, `${m.pushName}`);
-
-        if (!stiker) throw new Error("No se pudo crear el sticker");
 
         await conn.sendMessage(
             m.chat,
@@ -30,20 +25,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
                 sticker: stiker,
                 animated: true
             },
-            {
-                quoted: m,
-                contextInfo: {
-                    externalAdReply: {
-                        showAdAttribution: false,
-                        title: `${m.pushName}`, // Nombre del usuario
-                        body: textbot,          // opcional: cuerpo del bot
-                        mediaType: 1,
-                        sourceUrl: redes,
-                        thumbnail: await (await fetch(icono)).buffer(),
-                        thumbnailUrl: redes
-                    }
-                }
-            }
+            { quoted: m }
         );
 
         await m.react("✅");
