@@ -1,67 +1,33 @@
-let handler = async (m, { conn, participants, chatUpdate }) => {
-  try {
-    // Solo eventos de grupo
-    if (!m.isGroup) return
+export default function groupParticipants(conn) {
+  conn.ev.on('group-participants.update', async (update) => {
+    try {
+      const { id, participants, action } = update
 
-    const chat = global.db.data.chats[m.chat]
-    if (!chat || !chat.welcome) return
+      const chat = global.db.data.chats[id]
+      if (!chat || !chat.welcome) return
 
-    // Detectar evento
-    const update = chatUpdate?.participant || chatUpdate?.participants
-    const action = chatUpdate?.action
+      for (const user of participants) {
+        const tag = '@' + user.split('@')[0]
 
-    if (!update || !action) return
-
-    const users = Array.isArray(update) ? update : [update]
-
-    for (const user of users) {
-      const tag = '@' + user.split('@')[0]
-
-      // ───── WELCOME ─────
-      if (action === 'add') {
-        const text = `
-👋 *Bienvenido/a al grupo*
-
-🌱 ${tag}
-Lee las reglas y disfruta tu estadía 😄
-        `.trim()
-
-        await conn.sendMessage(
-          m.chat,
-          {
-            text,
+        // ───── ADD ─────
+        if (action === 'add') {
+          await conn.sendMessage(id, {
+            text: `👋 *Bienvenido/a*\n\n${tag}`,
             mentions: [user]
-          }
-        )
+          })
+        }
+
+        // ───── REMOVE ─────
+        if (action === 'remove') {
+          await conn.sendMessage(id, {
+            text: `👋 *Adiós*\n\n${tag}`,
+            mentions: [user]
+          })
+        }
       }
 
-      // ───── BYE ─────
-      if (action === 'remove') {
-        const text = `
-👋 *Adiós*
-
-${tag} salió del grupo.
-        `.trim()
-
-        await conn.sendMessage(
-          m.chat,
-          {
-            text,
-            mentions: [user]
-          }
-        )
-      }
+    } catch (e) {
+      console.error('[GROUP PARTICIPANTS ERROR]', e)
     }
-
-  } catch (e) {
-    console.error('[WELCOME/BYE ERROR]', e)
-  }
+  })
 }
-
-/* 
-  Se ejecuta ANTES de comandos
-  para captar eventos de grupo
-*/
-handler.before = true
-
-export default handler
