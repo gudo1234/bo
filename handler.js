@@ -20,7 +20,7 @@ function getUser(id) {
   return u
 }
 function getChat(id) {
-  const c = global.db.data.chats[id] ||= { isBanned:false, bienvenida:true, antiLink:false, onlyLatinos:false, nsfw:true, expired:0 }
+  const c = global.db.data.chats[id] ||= { isBanned:false, welcome:true, antiLink:false, onlyLatinos:false, nsfw:true, expired:0 }
   global.dbDirty = true
   return c
 }
