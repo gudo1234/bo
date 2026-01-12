@@ -5,7 +5,7 @@ let enviando = false;
 let handler = async (m, { conn, args }) => {
     try {
         if (!args || !args[0]) {
-            return m.reply(`${emoji} *Te faltó el link de una imagen/video de Twitter (X).*`);
+            return m.reply(`${e} *Te faltó el link de una imagen/video de Twitter (X).*`);
         }
 
         if (enviando) return;
@@ -28,7 +28,7 @@ let handler = async (m, { conn, args }) => {
 
     } catch (err) {
         console.error(err);
-        await m.reply(`${e} *Error al descargar el archivo.*` + err);
+        await m.reply(err);
         await m.react("❌");
 
     } finally {
