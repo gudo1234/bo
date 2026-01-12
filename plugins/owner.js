@@ -23,15 +23,14 @@ async function handler(m, { conn }) {
         mediaType: 1,
         title: 'No molestar, xD -_-',
         body: wm,
-        thumbnailUrl: redes, // Esta es la URL directa
-        thumbnail,           // Este es el buffer de la imagen
-        sourceUrl: redes     // URL de destino si dan clic
+        thumbnailUrl: redes,
+        thumbnail,
+        sourceUrl: redes
       }
     }
   }, { quoted: m });
 }
 
-handler.help = ["owner"]
 handler.customPrefix = /^(zeus|edar|@50492280729|owner|dueño|creador)$/i;
 handler.command = new RegExp;
 
