@@ -1,7 +1,7 @@
 # Killua
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/0000000/000000000-00000000-0000-0000-0000-000000000000.png](https://images7.alphacoders.com/745/thumb-1920-745131.png" alt="Killua" width="180" />
+  <img src="https://images7.alphacoders.com/745/thumb-1920-745131.png" alt="Killua" width="180" />
 </p>
 
 <p align="center">
