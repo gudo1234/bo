@@ -174,7 +174,7 @@ tempOutputPath
 };
 
 handler.help = ["sticker"]
-handler.tags = ["pegatina"]
+handler.tags = ["maker"]
 handler.group = true;
 handler.command = ['s', 'sticker', 'stiker'];
 export default handler;
