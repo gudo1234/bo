@@ -1,3 +1,4 @@
+import fetch from "node-fetch";
 const handler = async (m, {conn, participants, groupMetadata, args}) => {
   const pp = await conn.profilePictureUrl(m.chat, 'image').catch((_) => null) || icono;
   const groupAdmins = participants.filter((p) => p.admin);
@@ -23,7 +24,7 @@ ${e} Evita usar este comando con otras intenciones o seras *eliminado* o *banead
             title: "Administradores",
             body: textbot,
             thumbnailUrl: redes,
-            thumbnail: pp,
+            thumbnail: await (await fetch(pp)).buffer(),
             sourceUrl: redes,
             mediaType: 1
           }
