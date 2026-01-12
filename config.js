@@ -9,8 +9,8 @@ import axios from 'axios'
 
 
 global.owner = [
-  ['5493425242334', ' 🍁̶͢͞▻⟅ẹ𝆊ϋ⟆٭⳺֟፝͜⳻٭.er/k.', true],
-]
+   ['50492280729', '🍁̶͢͞▻⟅ẹ𝆊ϋ⟆٭⳺֟፝͜⳻٭.er/k', true],
+   ['5215539356057']];
 
 global.mods = []
 global.prems = []
