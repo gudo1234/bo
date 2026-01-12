@@ -1,7 +1,7 @@
 # Killua
 
 <p align="center">
-  <img src="https://images7.alphacoders.com/745/thumb-1920-745131.png" alt="Killua" width="320" />
+  <img src="https://images7.alphacoders.com/745/thumb-1920-745131.png" alt="Killua" width="420" />
 </p>
 
 <p align="center">
