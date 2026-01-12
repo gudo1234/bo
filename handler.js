@@ -112,6 +112,11 @@ export async function handler(chatUpdate) {
   const groupMeta = m.isGroup ? await global.cachedGroupMetadata(m.chat) : {}
   const participants = groupMeta.participants || []
   const participantsMap = Object.fromEntries(participants.map(p=>[this.decodeJid(p.id), p]))
+  const userInGroup = participantsMap[m.sender] || {}
+  const botInGroup = participantsMap[this.decodeJid(this.user.jid)] || {}
+  const isRAdmin = userInGroup.admin==='superadmin'
+  const isAdmin = isRAdmin || userInGroup.admin==='admin'
+  const isBotAdmin = botInGroup.admin==='admin'||botInGroup.admin==='superadmin'
 
   for (const name of Object.keys(global.plugins)) {
     const plugin = global.plugins[name]
@@ -119,6 +124,30 @@ export async function handler(chatUpdate) {
 
     if (plugin.group||plugin.admin||plugin.botAdmin) {
       m.isGroup && true
+    }
+
+    const baseContext = {
+      conn: this,
+      participants,
+      groupMetadata: groupMeta,
+      isROwner,
+      isOwner,
+      isRAdmin,
+      isAdmin,
+      isBotAdmin,
+      isPrems,
+      chatUpdate,
+      __dirname: pluginDir,
+      __filename: join(pluginDir, name)
+    }
+
+    if (plugin.before && !plugin.command && !plugin.customPrefix) {
+      try {
+        await plugin.before.call(this, m, baseContext)
+      } catch (e) {
+        console.error(e)
+      }
+      continue
     }
 
     const match = detectPrefix(m.text, plugin.customPrefix||this.prefix||global.prefix)
@@ -129,13 +158,7 @@ export async function handler(chatUpdate) {
     const text = argsArr.join(' ')
     if (!checkCommand(plugin.command, command)) continue
 
-    const userInGroup = participantsMap[m.sender] || {}
-    const botInGroup = participantsMap[this.decodeJid(this.user.jid)] || {}
-    const isRAdmin = userInGroup.admin==='superadmin'
-    const isAdmin = isRAdmin || userInGroup.admin==='admin'
-    const isBotAdmin = botInGroup.admin==='admin'||botInGroup.admin==='superadmin'
-
-    if (plugin.before && await plugin.before.call(this, m, { match, conn:this, participants, groupMetadata:groupMeta, isROwner, isOwner, isRAdmin, isAdmin, isBotAdmin, isPrems, chatUpdate, __dirname:pluginDir, __filename:join(pluginDir, name) })) continue
+    if (plugin.before && await plugin.before.call(this, m, { match, ...baseContext })) continue
     if (typeof plugin !== 'function') continue
 
     m.plugin = name
