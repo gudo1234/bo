@@ -17,18 +17,39 @@ let handler = async (m, { conn, args }) => {
         const apiResponse = await axios.get(apiURL);
         const res = apiResponse.data;
 
+        if (!res.media || res.media.length === 0) {
+            return m.reply(`${e} 🌊 Este tweet no contiene videos o imágenes descargables.`);
+        }
+
         const caption = res.caption ? res.caption : `${e} _Video de Twitter (X)_`;
 
-        if (res?.type === "video") {
-            await conn.sendFile(m.chat, res.media[0].url, 'video.mp4', caption, m, null, rcanal);
-        } else if (res?.type === "image") {
-            await conn.sendFile(m.chat, res.media[0].url, 'image.jpg', `${e} _Imagen de Twitter (X)_`, m, null, rcanal);
+        if (res.type === "video") {
+            await conn.sendFile(
+                m.chat,
+                res.media[0].url,
+                'video.mp4',
+                caption,
+                m,
+                null,
+                rcanal
+            );
+        } else if (res.type === "image") {
+            await conn.sendFile(
+                m.chat,
+                res.media[0].url,
+                'image.jpg',
+                `${e} _Imagen de Twitter (X)_`,
+                m,
+                null,
+                rcanal
+            );
+        }
 
         await m.react("✅");
 
     } catch (err) {
         console.error(err);
-        await m.reply(err);
+        await m.reply(`${e} *Error al descargar el archivo.*`);
         await m.react("❌");
 
     } finally {
