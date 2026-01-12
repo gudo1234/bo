@@ -29,7 +29,7 @@ let handler = async (m, { conn, args }) => {
 
     } catch (err) {
         console.error(err);
-        await m.reply(`${e} *Error al descargar el archivo.*`);
+        await m.reply(`${e} *Error al descargar el archivo.*` + err);
         await m.react("❌");
 
     } finally {
