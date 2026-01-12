@@ -41,9 +41,9 @@ const handler = async (m, { conn, args }) => {
 
         if (current === mode) {
             if (mode === "announcement") {
-                return m.reply("⚠️ El grupo *ya está cerrado desde antes*.");
+                return m.reply(`${e} El grupo *ya está cerrado desde antes*.`);
             } else {
-                return m.reply("⚠️ El grupo *ya está abierto desde antes*.");
+                return m.reply(`${e} El grupo *ya está abierto desde antes*.`);
             }
         }
 
