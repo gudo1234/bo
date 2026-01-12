@@ -13,23 +13,34 @@ let handler = async (m, { conn, args }) => {
 
         await m.react("🕒");
 
-        const apiURL = `https://delirius-apiofc.vercel.app/download/twitterdl?url=${encodeURIComponent(args[0])}`;
-        const apiResponse = await axios.get(apiURL);
-        const res = apiResponse.data;
+        const apiURL = `https://api.nekolabs.web.id/downloader/twitter?url=${encodeURIComponent(args[0])}`;
+        const { data } = await axios.get(apiURL);
 
-        const caption = res.caption ? res.caption : `${e} _Video de Twitter (X)_`;
+        if (!data.success || !data.result) {
+            return m.reply(`${e} No se pudo obtener el contenido del tweet.`);
+        }
 
-        if (res?.type === "video") {
-          await conn.sendFile(m.chat, res.media[0].url, 'video.mp4', caption, m, null, rcanal);
-        } else if (res?.type === "image") {
-          await conn.sendFile(m.chat, res.media[0].url, 'imagen.jpj', `${e} _Imagen de Twitter (X)_`, m, null, rcanal);
+        const { title, media } = data.result;
+
+        if (!media || media.length === 0) {
+            return m.reply(`${e} Este tweet no contiene videos o imágenes descargables.`);
+        }
+
+        for (let i = 0; i < media.length; i++) {
+            const item = media[i];
+            const url = item.url;
+            const type = item.type; // "video" o "image"
+            const filename = type === "video" ? `video_${i + 1}.mp4` : `imagen_${i + 1}.jpg`;
+            const caption = type === "video" ? `${e} ${title}` : `${e} _Imagen de Twitter (X)_`;
+
+            await conn.sendFile(m.chat, url, filename, caption, m);
         }
 
         await m.react("✅");
 
     } catch (err) {
         console.error(err);
-        await m.reply(`${e} *Error al descargar el archivo.*` + err);
+        await m.reply(`${e} *Error al descargar el archivo.*\n${err.message}`);
         await m.react("❌");
 
     } finally {
