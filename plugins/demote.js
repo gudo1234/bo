@@ -1,34 +1,47 @@
-let handler = async (m, { conn,usedPrefix, command, text }) => {
-if(isNaN(text) && !text.match(/@/g)){
-	
-}else if(isNaN(text)) {
-var number = text.split`@`[1]
-}else if(!isNaN(text)) {
-var number = text
-}
-if(!text && !m.quoted) return conn.reply(m.chat, `${e} Menciona a una persona para quitarle admin.`, m, rcanal)
-if(number.length > 13 || (number.length < 11 && number.length > 0)) return conn.reply(m.chat, `${e} Menciona a una persona para quitarle admin.`, m)
-try {
-if(text) {
-var user = number + '@s.whatsapp.net'
-} else if(m.quoted.sender) {
-var user = m.quoted.sender
-} else if(m.mentionedJid) {
-var user = number + '@s.whatsapp.net'
-} 
-} catch (e) {
-} finally {
-conn.groupParticipantsUpdate(m.chat, [user], 'demote')
-await m.react('✅')
+import PhoneNumber from "awesome-phonenumber";
+
+function detectarJid(m) {
+    if (m.quoted?.sender) return m.quoted.sender;
+
+    const mention = m.message?.extendedTextMessage?.contextInfo?.mentionedJid;
+    if (mention?.length) return mention[0];
+
+    if (m.text) {
+        let numero = m.text.replace(/\D/g, "");
+
+        if (numero.length >= 6) {
+            const pn = new PhoneNumber("+" + numero);
+            if (pn.isValid()) {
+                return pn.getNumber("rfc3966").replace("tel:+", "") + "@s.whatsapp.net";
+            }
+            return numero + "@s.whatsapp.net";
+        }
+    }
+
+    return null;
 }
 
-}
-handler.help = ['demote']
-handler.tags = ['grupo']
-handler.command = ['demote', 'degradar'] 
-handler.group = true
-handler.admin = true
-handler.botAdmin = true
-handler.fail = null
+const handler = async (m, { conn, args }) => {
+    const jid = detectarJid(m);
 
-export default handler
+    if (!jid) {
+        return m.reply("❌ Menciona, responde o escribe el número del usuario para quitar admin.");
+    }
+
+    try {
+        await conn.groupParticipantsUpdate(m.chat, [jid], "demote");
+        await m.react("✅");
+    } catch (error) {
+        console.error("[DEMOTE ERROR]", error);
+        m.reply("❌ Error al quitar admin.");
+    }
+};
+
+handler.help = ["demote"];
+handler.tags = ["grupo"];
+handler.command = ["demote", "quitaradmin"];
+handler.group = true;
+handler.botAdmin = true;
+handler.onlyAdmin = true;
+
+export default handler;
