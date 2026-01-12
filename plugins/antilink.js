@@ -35,13 +35,17 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
     const isGroupLink = linkRegex.exec(m.text) || linkRegex1.exec(m.text);
     if (!chat.antilink || !isGroupLink) return true;
 
-    if (isBotAdmin) {
-        const linkThisGroup = `https://chat.whatsapp.com/${await conn.groupInviteCode(m.chat)}`;
-        if (m.text.includes(linkThisGroup)) return true;
-    }
+    if (!isBotAdmin) return true;
 
-    // Normalizar los admins
-    const adminRealNumbers = participants
+    const linkThisGroup = `https://chat.whatsapp.com/${await conn.groupInviteCode(m.chat)}`;
+    if (m.text.includes(linkThisGroup)) return true;
+
+    // Obtener admins reales
+    const metadata = await conn.groupMetadata(m.chat);
+    const owner = metadata.owner || `${m.chat.split`-`[0]}@s.whatsapp.net`;
+    const botNumber = conn.user.jid;
+
+    const adminRealNumbers = metadata.participants
         .filter(p => p.admin || p.admin === "superadmin")
         .map(p => {
             const real = getRealNumber(p);
@@ -50,25 +54,23 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
 
     const senderReal = getRealNumber({ id: sender }) ? `${getRealNumber({ id: sender })}@s.whatsapp.net` : sender;
 
-    if (adminRealNumbers.includes(senderReal)) return true; // ✅ Si es admin, no eliminar
+    if (adminRealNumbers.includes(senderReal) || senderReal === owner || senderReal === botNumber) return true;
 
     await conn.sendMessage(
         m.chat,
         { 
-            text: `${e} Se ha eliminado a ${user} del grupo por Anti-Link.`, 
+            text: `${e} Se ha eliminado a ${user} del grupo por enviar un enlace no permitido.`, 
             mentions: [sender] 
         },
         { quoted: null, ephemeralExpiration: 24*60*100, disappearingMessagesInChat: 24*60*100 }
     );
 
-    if (isBotAdmin) {
-        await conn.sendMessage(
-            m.chat,
-            { delete: { remoteJid: m.chat, fromMe: false, id: bang, participant: delet } }
-        );
+    await conn.sendMessage(
+        m.chat,
+        { delete: { remoteJid: m.chat, fromMe: false, id: bang, participant: delet } }
+    );
 
-        await conn.groupParticipantsUpdate(m.chat, [sender], "remove");
-    }
+    await conn.groupParticipantsUpdate(m.chat, [sender], "remove");
 
     return true;
 }
