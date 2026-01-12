@@ -16,18 +16,18 @@ export async function before(m, {conn, participants, groupMetadata}) {
   let chat = global.db.data.chats[m.chat]
   const mentionId = typeof targetJid === 'string' ? targetJid.split`@`[0] : (stubData?.id || '').split?.('@')?.[0]
 
-  if (chat.bienvenida && m.messageStubType == 27) {
+  if (chat.welcome && m.messageStubType == 27) {
     let bienvenida = `════ ⋆★⋆ ════\n*${botname}* \n Bienvenido \n  「 @${mentionId} 」\n   ➠  Bienvenido a\n   ➠  ${groupMetadata.subject}\n   ➠  Lee las reglas del grupo\n════ ⋆★⋆ ════`
     
 await conn.sendAi(m.chat, botname, textbot, bienvenida, img, img, canal)
   }
   
-  if (chat.bienvenida && m.messageStubType == 28) {
+  if (chat.welcome && m.messageStubType == 28) {
     let bye = `════ ⋆★⋆ ════\n*${botname}* \n│ ADIOS  \n 「 @${mentionId} 」\n   ➠  Se fue\n   ➠ Jamás te quisimos aquí\n════ ⋆★⋆ ════`
 await conn.sendAi(m.chat, botname, textbot, bye, img, img, canal)
   }
   
-  if (chat.bienvenida && m.messageStubType == 32) {
+  if (chat.welcome && m.messageStubType == 32) {
     let kick = `════ ⋆★⋆ ════\n*${botname}* \n│ ADIOS  」\n 「 @${mentionId} 」\n   ➠  Se fue\n   ➠ Jamás te quisimos aquí\n════ ⋆★⋆ ════`
 await conn.sendAi(m.chat, botname, textbot, kick, img, img, canal)
 }}
