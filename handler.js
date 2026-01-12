@@ -90,11 +90,28 @@ export async function handler(chatUpdate) {
   if (opts.nyimak || (!m.fromMe && opts.self) || (opts.swonly && m.chat!=='status@broadcast')) return
   if (!m.text) m.text = extractText(m)
 
-  const _user = getUser(m.sender)
-  const isROwner = [this.decodeJid(this.user.id), ...global.owner.map(v=>v[0])].map(v=>v.replace(/\D/g,'')+'@s.whatsapp.net').includes(m.sender)
+  if (m.isBaileys) return
+  m.exp += Math.ceil(Math.random()*10)
+
+  const pluginDir = path.join(path.dirname(fileURLToPath(import.meta.url)), './plugins')
+  const groupMeta = m.isGroup ? await global.cachedGroupMetadata(m.chat) : {}
+  const participants = groupMeta.participants || []
+  const participantsMap = {}
+  for (const p of participants) {
+    if (p?.id) participantsMap[this.decodeJid(p.id)] = p
+    if (p?.jid) participantsMap[this.decodeJid(p.jid)] = p
+  }
+  const userInGroup = participantsMap[m.sender] || {}
+  const botInGroup = participantsMap[this.decodeJid(this.user.jid)] || {}
+  const resolvedSender = this.decodeJid(userInGroup.jid || userInGroup.id || m.sender)
+  const _user = getUser(resolvedSender)
+  const isRAdmin = userInGroup.admin==='superadmin'
+  const isAdmin = isRAdmin || userInGroup.admin==='admin'
+  const isBotAdmin = botInGroup.admin==='admin'||botInGroup.admin==='superadmin'
+  const isROwner = [this.decodeJid(this.user.id), ...global.owner.map(v=>v[0])].map(v=>v.replace(/\D/g,'')+'@s.whatsapp.net').includes(resolvedSender)
   const isOwner = isROwner || m.fromMe
-  const isMods = isOwner || global.mods.map(v=>v.replace(/\D/g,'')+'@s.whatsapp.net').includes(m.sender)
-  const isPrems = isROwner || global.prems.map(v=>v.replace(/\D/g,'')+'@s.whatsapp.net').includes(m.sender) || _user.premium
+  const isMods = isOwner || global.mods.map(v=>v.replace(/\D/g,'')+'@s.whatsapp.net').includes(resolvedSender)
+  const isPrems = isROwner || global.prems.map(v=>v.replace(/\D/g,'')+'@s.whatsapp.net').includes(resolvedSender) || _user.premium
 
   if (opts.queque && m.text && !(isMods||isPrems)) {
     const queue = this.msgqueque, prev = queue.at(-1)
@@ -104,19 +121,6 @@ export async function handler(chatUpdate) {
       await delay(5000)
     },5000)
   }
-
-  if (m.isBaileys) return
-  m.exp += Math.ceil(Math.random()*10)
-
-  const pluginDir = path.join(path.dirname(fileURLToPath(import.meta.url)), './plugins')
-  const groupMeta = m.isGroup ? await global.cachedGroupMetadata(m.chat) : {}
-  const participants = groupMeta.participants || []
-  const participantsMap = Object.fromEntries(participants.map(p=>[this.decodeJid(p.id), p]))
-  const userInGroup = participantsMap[m.sender] || {}
-  const botInGroup = participantsMap[this.decodeJid(this.user.jid)] || {}
-  const isRAdmin = userInGroup.admin==='superadmin'
-  const isAdmin = isRAdmin || userInGroup.admin==='admin'
-  const isBotAdmin = botInGroup.admin==='admin'||botInGroup.admin==='superadmin'
 
   for (const name of Object.keys(global.plugins)) {
     const plugin = global.plugins[name]
