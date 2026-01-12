@@ -20,7 +20,7 @@ function getUser(id) {
   return u
 }
 function getChat(id) {
-  const c = global.db.data.chats[id] ||= { isBanned:false, welcome:true, antiLink:false, onlyLatinos:false, nsfw:true, expired:0 }
+  const c = global.db.data.chats[id] ||= { isBanned:false, bienvenida:true, antiLink:false, onlyLatinos:false, nsfw:false, expired:0 }
   global.dbDirty = true
   return c
 }
@@ -138,7 +138,7 @@ export async function handler(chatUpdate) {
 
     m.plugin = name
 
-    if (chat.isBanned && name!=='unbanchat.js') return
+    if (chat.isBanned && name!=='group-unbanchat.js') return
     if (user.banned && name!=='owner-unbanuser.js') return
     if (settings.banned && name!=='owner-unbanbot.js') return
 
