@@ -1,4 +1,5 @@
 import { smsg } from './lib/simple.js'
+import print from './lib/print.js'
 import { format } from 'util'
 import { fileURLToPath } from 'url'
 import path, { join } from 'path'
@@ -69,6 +70,7 @@ export async function handler(chatUpdate) {
   if (!global.db.data) await global.loadDatabase()
   m = smsg(this, m) || m
   if (!m) return
+  await print(m, this)
 
   m.exp = 0
   m.limit = false
