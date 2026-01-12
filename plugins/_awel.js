@@ -1,42 +1,33 @@
-export const disabled = false
+import {WAMessageStubType} from '@whiskeysockets/baileys'
+import fetch from 'node-fetch'
 
-export async function before(m, { conn, participants, groupMetadata }) {
-  if (!m.isGroup) return
-
-  const chat = global.db.data.chats[m.chat]
-  if (!chat || !chat.welcome) return
-
-  // 27 = ADD | 32 = LEAVE
-  if (![27, 32].includes(m.messageStubType)) return
-
-  const userJid = m.messageStubParameters?.[0]
-  if (!userJid) return
-
-  const user = userJid.split('@')[0]
-  const groupName = groupMetadata?.subject || 'el grupo'
-
-  // 🟢 BIENVENIDA
-  if (m.messageStubType === 27) {
-    await conn.sendMessage(m.chat, {
-      text:
-`👋 *Bienvenido/a*
-
-@${user}
-Bienvenido a *${groupName}*
-Lee las reglas y disfruta 😄`,
-      mentions: [userJid]
-    })
+export async function before(m, {conn, participants, groupMetadata}) {
+  if (!m.messageStubType || !m.isGroup) return !0;
+  let stubData = m.messageStubParameters?.[0]
+  let targetJid = stubData
+  if (typeof stubData === 'string' && stubData.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(stubData)
+      targetJid = parsed.phoneNumber || parsed.id || stubData
+    } catch {}
   }
+  let pp = await conn.profilePictureUrl(targetJid, 'image').catch(_ => icono)
+  let img = await (await fetch(`${pp}`)).buffer()
+  let chat = global.db.data.chats[m.chat]
+  const mentionId = typeof targetJid === 'string' ? targetJid.split`@`[0] : (stubData?.id || '').split?.('@')?.[0]
 
-  // 🔴 DESPEDIDA
-  if (m.messageStubType === 32) {
-    await conn.sendMessage(m.chat, {
-      text:
-`👋 *Adiós*
-
-@${user}
-Salió de *${groupName}*`,
-      mentions: [userJid]
-    })
+  if (chat.bienvenida && m.messageStubType == 27) {
+    let bienvenida = `════ ⋆★⋆ ════\n*${botname}* \n Bienvenido \n  「 @${mentionId} 」\n   ➠  Bienvenido a\n   ➠  ${groupMetadata.subject}\n   ➠  Lee las reglas del grupo\n════ ⋆★⋆ ════`
+    
+await conn.sendAi(m.chat, botname, textbot, bienvenida, img, img, canal)
   }
-}
+  
+  if (chat.bienvenida && m.messageStubType == 28) {
+    let bye = `════ ⋆★⋆ ════\n*${botname}* \n│ ADIOS  \n 「 @${mentionId} 」\n   ➠  Se fue\n   ➠ Jamás te quisimos aquí\n════ ⋆★⋆ ════`
+await conn.sendAi(m.chat, botname, textbot, bye, img, img, canal)
+  }
+  
+  if (chat.bienvenida && m.messageStubType == 32) {
+    let kick = `════ ⋆★⋆ ════\n*${botname}* \n│ ADIOS  」\n 「 @${mentionId} 」\n   ➠  Se fue\n   ➠ Jamás te quisimos aquí\n════ ⋆★⋆ ════`
+await conn.sendAi(m.chat, botname, textbot, kick, img, img, canal)
+}}
