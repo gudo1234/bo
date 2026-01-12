@@ -1,72 +1,98 @@
+import PhoneNumber from "awesome-phonenumber";
+
+function detectarJid(m) {
+    if (m.quoted?.sender) return m.quoted.sender;
+
+    const mention = m.message?.extendedTextMessage?.contextInfo?.mentionedJid;
+    if (mention?.length) return mention[0];
+
+    if (m.text) {
+        let numero = m.text.replace(/\D/g, "");
+
+        if (numero.length >= 6) {
+            const pn = new PhoneNumber("+" + numero);
+            if (pn.isValid()) {
+                return pn.getNumber("rfc3966").replace("tel:+", "") + "@s.whatsapp.net";
+            }
+            return numero + "@s.whatsapp.net";
+        }
+    }
+
+    return null;
+}
+
 var handler = async (m, { conn, participants, args, usedPrefix, command }) => {
-  const groupInfo = await conn.groupMetadata(m.chat);
-  const ownerGroup = groupInfo.owner || `${m.chat.split`-`[0]}@s.whatsapp.net`;
-  const ownerBot = `${global.owner[0][0]}@s.whatsapp.net`;
-  const admins = participants.filter(p => p.admin).map(p => p.id);
+    const groupInfo = await conn.groupMetadata(m.chat);
+    const ownerGroup = groupInfo.owner || `${m.chat.split`-`[0]}@s.whatsapp.net`;
+    const ownerBot = `${global.owner[0][0]}@s.whatsapp.net`;
+    const admins = participants.filter(p => p.admin).map(p => p.id);
 
-  const candidates = participants.filter(p => 
-    p.id !== conn.user.jid &&
-    p.id !== ownerGroup &&
-    p.id !== ownerBot
-  );
-  const randomUser = candidates[Math.floor(Math.random() * candidates.length)]?.id || 'usuario@s.whatsapp.net';
+    // Obtener usuario mediante mención, respuesta o número completo
+    const userJid = detectarJid(m);
 
-  if ((m.mentionedJid && m.mentionedJid.length) || m.quoted) {
-    const user = m.mentionedJid[0] || m.quoted.sender;
+    if (userJid) {
+        if (userJid === conn.user.jid)
+            return conn.reply(m.chat, "⚠️ No puedo eliminarme yo (bot) del grupo.", m);
 
-    if (user === conn.user.jid)
-      return conn.reply(m.chat, `${e} No puedo eliminarme yo (bot) del grupo.`, m);
+        if (userJid === ownerGroup)
+            return conn.reply(m.chat, "⚠️ No puedo eliminar al propietario del grupo.", m);
 
-    if (user === ownerGroup)
-      return conn.reply(m.chat, `${e} No puedo eliminar al propietario del grupo.`, m);
+        if (userJid === ownerBot)
+            return conn.reply(m.chat, "⚠️ No puedo eliminar al propietario del bot.", m);
 
-    if (user === ownerBot)
-      return conn.reply(m.chat, `${e} No puedo eliminar al propietario del bot.`, m);
+        if (admins.includes(userJid))
+            return conn.reply(m.chat, "⚠️ No puedo eliminar a otro administrador del grupo.", m);
 
-    if (admins.includes(user))
-      return conn.reply(m.chat, `${e} No puedo eliminar a otro administrador del grupo.`, m);
-
-    await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
-    return;
-  }
-
-  if (args[0] && !isNaN(args[0])) {
-    const prefix = args[0];
-
-    let targets = participants.filter(p =>
-      p.id.startsWith(prefix) &&
-      p.id !== conn.user.jid &&
-      p.id !== ownerGroup &&
-      p.id !== ownerBot &&
-      !admins.includes(p.id)
-    ).map(p => p.id);
-
-    if (targets.length === 0)
-      return conn.reply(m.chat, `${e} *No se encontró ningún miembro con el prefijo* ${prefix} *que pueda ser expulsado.*`, m);
-
-    conn.reply(m.chat, `*Expulsando a ${targets.length} usuario(s) con el prefijo ${prefix}*`, m);
-
-    for (let id of targets) {
-      await conn.groupParticipantsUpdate(m.chat, [id], 'remove');
-      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 segundos entre cada expulsión
+        await conn.groupParticipantsUpdate(m.chat, [userJid], 'remove');
+        return conn.reply(m.chat, `✅ Usuario eliminado correctamente.`, m);
     }
 
-    return conn.reply(m.chat, '*Expulsión finalizada.*', m);
-  }
+    // Si se quiere expulsar por prefijo
+    if (args[0] && !isNaN(args[0])) {
+        const prefix = args[0];
 
-  return conn.reply(m.chat, `${e} *Ejemplos de uso:*\n` +
-    `✑ _Para expulsar a un usuario usa:_ \`${usedPrefix + command}\` @${randomUser.split('@')[0]}\n` +
-    `> Para expulsar a todos los usuarios cuyo número comienza con un prefijo específico: *${usedPrefix + command} <prefijo>*\n\n` +
-    `*Ejemplo:* \`${usedPrefix + command}\` 212 (esto expulsará a todos los usuarios cuyo número comience con +212)`,
-    m, {
-      mentions: [randomUser]
+        let targets = participants.filter(p =>
+            p.id.replace("@s.whatsapp.net","").startsWith(prefix) &&
+            p.id !== conn.user.jid &&
+            p.id !== ownerGroup &&
+            p.id !== ownerBot &&
+            !admins.includes(p.id)
+        ).map(p => p.id);
+
+        if (targets.length === 0)
+            return conn.reply(m.chat, `⚠️ *No se encontró ningún miembro con el prefijo* ${prefix} *que pueda ser expulsado.*`, m);
+
+        conn.reply(m.chat, `⚠️ *Expulsando a ${targets.length} usuario(s) con el prefijo ${prefix}*`, m);
+
+        for (let id of targets) {
+            await conn.groupParticipantsUpdate(m.chat, [id], 'remove');
+            await new Promise(resolve => setTimeout(resolve, 3000)); // 3 segundos entre cada expulsión
+        }
+
+        return conn.reply(m.chat, '✅ *Expulsión finalizada.*', m);
     }
-  );
+
+    // Mensaje de ayuda si no se proporciona usuario ni prefijo
+    const candidates = participants.filter(p => 
+        p.id !== conn.user.jid &&
+        p.id !== ownerGroup &&
+        p.id !== ownerBot
+    );
+    const randomUser = candidates[Math.floor(Math.random() * candidates.length)]?.id || 'usuario@s.whatsapp.net';
+
+    return conn.reply(m.chat, `⚠️ *Ejemplos de uso:*\n` +
+        `✑ _Para expulsar a un usuario usa:_ \`${usedPrefix + command}\` @${randomUser.split('@')[0]}\n` +
+        `> Para expulsar a todos los usuarios cuyo número comienza con un prefijo específico: *${usedPrefix + command} <prefijo>*\n\n` +
+        `*Ejemplo:* \`${usedPrefix + command}\` 212 (esto expulsará a todos los usuarios cuyo número comience con +212)`,
+        m, {
+            mentions: [randomUser]
+        }
+    );
 };
 
-handler.help = ["kick"]
-handler.tags = ["grupo"]
-handler.command = ['ban', 'kick', 'echar', 'hechar', 'b', 'bam', 'kicknum']
+handler.help = ["kick"];
+handler.tags = ["grupo"];
+handler.command = ['ban', 'kick', 'echar', 'hechar', 'b', 'bam', 'kicknum'];
 handler.admin = true;
 handler.group = true;
 handler.botAdmin = true;
