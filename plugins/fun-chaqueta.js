@@ -14,7 +14,7 @@ let chaqueta = [
 `              .               .   ╭\n╭━━╮╭╭╭╮.           ╭ ╯\n┃▔╲┣╈╈╈╈━━━╮╭╯╭\n┃┈┈▏.╰╯╯╯╭╮━┫  \n┃┈--.╭━━━━╈╈━╯╰╮╰\n╰━━╯-.        ╰╯...-    ╰ ╮\n   .         . .  .  .. . . .  . .. .  ╰\n\n*[ 🔥 ] @${m.sender.split('@')[0]} SE HA CORRIDO GRACIAS A @${who.split('@')[0]}.*`,
  ]
 
-let { key } = await conn.sendMessage(m.chat, {text: `${emoji} Iniciando Chaqueta...`})
+let { key } = await conn.sendMessage(m.chat, {text: `${e} Iniciando Chaqueta...`})
 
 for (let i = 0; i < chaqueta.length; i++) {
 await conn.sendMessage(m.chat, {text: chaqueta[i], edit: key, mentions: conn.parseMention(chaqueta[i]) })
