@@ -1,57 +1,78 @@
-import { jidNormalizedUser } from "@whiskeysockets/baileys";
+var handler = async (m, { conn, participants, args, usedPrefix, command }) => {
+  const groupInfo = await conn.groupMetadata(m.chat);
+  const ownerGroup = groupInfo.owner || `${m.chat.split`-`[0]}@s.whatsapp.net`;
+  const ownerBot = `${global.owner[0][0]}@s.whatsapp.net`;
+  const admins = participants.filter(p => p.admin).map(p => p.id);
 
-const handler = async (m, { conn, args = [], participants }) => {
-    try {
-        let target = null;
-        if (m.quoted?.key?.fromMe) {
-            return m.reply(`${e} No puedes expulsar al bot respondiendo a sus mensajes.`);
-        }
+  // Elegir un usuario aleatorio válido para mostrar en los ejemplos
+  const candidates = participants.filter(p => 
+    p.id !== conn.user.jid &&
+    p.id !== ownerGroup &&
+    p.id !== ownerBot
+  );
+  const randomUser = candidates[Math.floor(Math.random() * candidates.length)]?.id || 'usuario@s.whatsapp.net';
 
-        if (m.quoted?.key?.participant) {
-            target = m.quoted.key.participant;
-        }
+  // Si hay menciones o mensaje citado
+  if ((m.mentionedJid && m.mentionedJid.length) || m.quoted) {
+    const user = m.mentionedJid[0] || m.quoted.sender;
 
-        if (!target && Array.isArray(m.mentions) && m.mentions.length > 0) {
-            target = m.mentions[0];
-        }
-      
-        if (!target && args.length > 0) {
-            try {
-                target = jidNormalizedUser(args[0]);
-            } catch {
-                const num = args[0].replace(/[^0-9]/g, "");
-                if (num) target = `${num}@s.whatsapp.net`;
-            }
-        }
+    if (user === conn.user.jid)
+      return conn.reply(m.chat, `${e} No puedo eliminarme yo (bot) del grupo.`, m);
 
-        if (!target) {
-            return m.reply(
-`${e} Debes mencionar al usuario, responder su mensaje o escribir su número.
+    if (user === ownerGroup)
+      return conn.reply(m.chat, `${e} No puedo eliminar al propietario del grupo.`, m);
 
-Ejemplo:
-.kick @usuario
-.kick 50298765432`
-            );
-        }
-        const groupAdmins = participants.filter(p => p.admin === "admin" || p.admin === "superadmin").map(p => p.id);
-        if (groupAdmins.includes(target)) {
-            return m.reply(`${e} No puedo expulsar a un administrador.`);
-        }
-        await conn.groupParticipantsUpdate(m.chat, [target], "remove");
+    if (user === ownerBot)
+      return conn.reply(m.chat, `${e} No puedo eliminar al propietario del bot.`, m);
 
-        const pretty = target.replace(/@s\.whatsapp\.net$/, "");
+    if (admins.includes(user))
+      return conn.reply(m.chat, `${e} No puedo eliminar a otro administrador del grupo.`, m);
 
-    } catch (error) {
-        console.error("[KICK ERROR]", error);
-        return m.reply("❌ Ocurrió un error al intentar expulsar al usuario.");
+    await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
+    return;
+  }
+
+  // Si se pasa un prefijo numérico
+  if (args[0] && !isNaN(args[0])) {
+    const prefix = args[0];
+
+    let targets = participants.filter(p =>
+      p.id.startsWith(prefix) &&
+      p.id !== conn.user.jid &&
+      p.id !== ownerGroup &&
+      p.id !== ownerBot &&
+      !admins.includes(p.id)
+    ).map(p => p.id);
+
+    if (targets.length === 0)
+      return conn.reply(m.chat, `${e} *No se encontró ningún miembro con el prefijo* ${prefix} *que pueda ser expulsado.*`, m);
+
+    conn.reply(m.chat, `*Expulsando a ${targets.length} usuario(s) con el prefijo ${prefix}*`, m);
+
+    for (let id of targets) {
+      await conn.groupParticipantsUpdate(m.chat, [id], 'remove');
+      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 segundos entre cada expulsión
     }
+
+    return conn.reply(m.chat, '*Expulsión finalizada.*', m);
+  }
+
+  // Mensaje de ayuda con mención real
+  return conn.reply(m.chat, `${e} *Ejemplos de uso:*\n` +
+    `✑ _Para expulsar a un usuario usa:_ \`${usedPrefix + command}\` @${randomUser.split('@')[0]}\n` +
+    `> Para expulsar a todos los usuarios cuyo número comienza con un prefijo específico: *${usedPrefix + command} <prefijo>*\n\n` +
+    `*Ejemplo:* \`${usedPrefix + command}\` 212 (esto expulsará a todos los usuarios cuyo número comience con +212)`,
+    m, {
+      mentions: [randomUser]
+    }
+  );
 };
 
-handler.help = ["kick"];
-handler.tags = ["grupo"];
-handler.command = ["kick", "expulsar", "ban", "sacar", "b", "bam", "eliminar"];
+handler.help = ["kick"]
+handler.tags = ["grupo"]
+handler.command = ['ban', 'kick', 'echar', 'hechar', 'b', 'bam', 'kicknum']
+handler.admin = true;
 handler.group = true;
-handler.onlyAdmin = true;
 handler.botAdmin = true;
 
 export default handler;
