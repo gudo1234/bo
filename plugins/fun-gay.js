@@ -33,7 +33,7 @@ let handler = async (m, { conn }) => {
       m.chat,
       Buffer.from(imgBuffer),
       "gay.jpg",
-      `${userTag} es 🏳️‍🌈 *${random}% Gay*\n\n${text}`,
+      `Ese negro es🏳️‍🌈 *${random}% Gay*\n\n${text}`,
       m, null, rcanal);
 
   } catch (err) {
