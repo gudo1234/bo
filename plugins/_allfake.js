@@ -1,5 +1,6 @@
 import PhoneNumber from "awesome-phonenumber"
 import fetch from 'node-fetch'
+const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)]
 async function getRandomChannel() {
   const canalIdM = ["120363285614743024@newsletter", "120363395205399025@newsletter"]
   const canalNombreM = ["🤖⃧►iʑυвöτ◃2.0▹", "Zeus Bot🔆Channel-OFC"]
@@ -115,7 +116,7 @@ global.msm = '⚠︎'
     global.e3 = '🍎'
     global.e4 = '⚡'
     global.e5 = '🌱'
-    global.e = getRandom([global.e1, global.e2, global.e3, global.e4, global.e5])
+    global.ePick = getRandom([global.e1, global.e2, global.e3, global.e4, global.e5])
 
     global.s1 = '➪'
     global.s2 = '➺'
@@ -124,3 +125,4 @@ global.msm = '⚠︎'
     global.s5 = '⬖'
     global.s = getRandom([global.s1, global.s2, global.s3, global.s4, global.s5])
         }
+
