@@ -1,4 +1,4 @@
-import axios from "axios";
+import fetch from "node-fetch";
 
 let enviando = false;
 
@@ -10,23 +10,21 @@ let handler = async (m, { conn, args }) => {
 
         if (enviando) return;
         enviando = true;
-
         await m.react("🕒");
 
-        // API Twitter v2
-        const apiURL = `https://api.delirius.store/download/twitterv2?url=${encodeURIComponent(args[0])}`;
-        const apiResponse = await axios.get(apiURL);
-        const res = apiResponse.data;
+        const url = `https://api.delirius.store/download/twitterv2?url=${encodeURIComponent(args[0])}`;
+        const res = await (await fetch(url)).json();
 
+        // ✅ Corregimos la ruta: res.data.media
         if (!res.status || !res.data || !res.data.media || res.data.media.length === 0) {
-            return m.reply(`${e} Este tweet no contiene videos o imágenes descargables.`);
+            return m.reply(`✨ Este tweet no contiene videos o imágenes descargables.`);
         }
 
-        const mediaItem = res.data.media[0]; // Tomamos el primer media
+        const mediaItem = res.data.media[0]; // Primer media
         const caption = res.data.description || `${e} _Media de Twitter (X)_`;
 
         if (mediaItem.type === "video") {
-            // Elegimos el video de mayor calidad
+            // Elegimos el video con mayor bitrate
             const bestVideo = mediaItem.videos.sort((a, b) => b.bitrate - a.bitrate)[0];
 
             await conn.sendFile(
@@ -38,6 +36,7 @@ let handler = async (m, { conn, args }) => {
                 null,
                 rcanal
             );
+
         } else if (mediaItem.type === "image") {
             await conn.sendFile(
                 m.chat,
@@ -56,6 +55,7 @@ let handler = async (m, { conn, args }) => {
         console.error(err);
         await m.reply(`${e} *Error al descargar el archivo.*`);
         await m.react("❌");
+
     } finally {
         enviando = false;
     }
