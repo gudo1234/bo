@@ -26,8 +26,6 @@ let handler = async (m, { conn, args, redes, textbot }) => {
 📆 *Creado:* ${result.createdAt}
 🔗 *Link:* ${result.cloneUrl}`;
 
-    const img = "https://files.catbox.moe/oc4myc.png";
-
     await conn.sendMessage(
       m.chat,
       {
@@ -36,7 +34,8 @@ let handler = async (m, { conn, args, redes, textbot }) => {
           externalAdReply: {
             title: result.name,
             body: textbot || "GitHub Search",
-            thumbnail: await (await fetch(img)).arrayBuffer(),
+            thumbnail: await (await fetch("https://files.catbox.moe/oc4myc.png")).buffer(),
+            thumbnailUrl: redes,
             sourceUrl: redes,
             mediaType: 1,
             renderLargerThumbnail: false
