@@ -42,6 +42,7 @@ handler.tags = ["grupo"];
 handler.command = ["demote", "quitaradmin"];
 handler.group = true;
 handler.botAdmin = true;
+handler.admin = true;
 handler.onlyAdmin = true;
 
 export default handler;
