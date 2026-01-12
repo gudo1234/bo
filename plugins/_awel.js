@@ -1,33 +1,42 @@
-export default function groupParticipants(conn) {
-  conn.ev.on('group-participants.update', async (update) => {
-    try {
-      const { id, participants, action } = update
+export const disabled = false
 
-      const chat = global.db.data.chats[id]
-      if (!chat || !chat.welcome) return
+export async function before(m, { conn, participants, groupMetadata }) {
+  if (!m.isGroup) return
 
-      for (const user of participants) {
-        const tag = '@' + user.split('@')[0]
+  const chat = global.db.data.chats[m.chat]
+  if (!chat || !chat.welcome) return
 
-        // ───── ADD ─────
-        if (action === 'add') {
-          await conn.sendMessage(id, {
-            text: `👋 *Bienvenido/a*\n\n${tag}`,
-            mentions: [user]
-          })
-        }
+  // 27 = ADD | 32 = LEAVE
+  if (![27, 32].includes(m.messageStubType)) return
 
-        // ───── REMOVE ─────
-        if (action === 'remove') {
-          await conn.sendMessage(id, {
-            text: `👋 *Adiós*\n\n${tag}`,
-            mentions: [user]
-          })
-        }
-      }
+  const userJid = m.messageStubParameters?.[0]
+  if (!userJid) return
 
-    } catch (e) {
-      console.error('[GROUP PARTICIPANTS ERROR]', e)
-    }
-  })
+  const user = userJid.split('@')[0]
+  const groupName = groupMetadata?.subject || 'el grupo'
+
+  // 🟢 BIENVENIDA
+  if (m.messageStubType === 27) {
+    await conn.sendMessage(m.chat, {
+      text:
+`👋 *Bienvenido/a*
+
+@${user}
+Bienvenido a *${groupName}*
+Lee las reglas y disfruta 😄`,
+      mentions: [userJid]
+    })
+  }
+
+  // 🔴 DESPEDIDA
+  if (m.messageStubType === 32) {
+    await conn.sendMessage(m.chat, {
+      text:
+`👋 *Adiós*
+
+@${user}
+Salió de *${groupName}*`,
+      mentions: [userJid]
+    })
+  }
 }
