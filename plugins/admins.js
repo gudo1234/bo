@@ -1,54 +1,73 @@
+import fetch from "node-fetch";
+import { jidNormalizedUser } from "@whiskeysockets/baileys";
+
 const handler = async (m, { conn, participants, groupMetadata, args }) => {
-  const pp =
-    await conn.profilePictureUrl(m.chat, 'image').catch(() => null) || icono
+  try {
+    const admins = [];
 
-  const groupAdmins = participants.filter(p => p.admin)
-  if (!groupAdmins.length) return m.reply('❌ No se encontraron administradores.')
+    for (const p of participants) {
+      if (p.admin !== "admin" && p.admin !== "superadmin") continue;
 
-  const admins = groupAdmins.map(v => v.id)
-
-  const listAdmin = groupAdmins
-    .map((v, i) => `${i + 1}. @${v.id.split('@')[0]}`)
-    .join('\n')
-
-  const pesan = args.join(' ') || '—'
-  const oi = `» ${pesan}`
-
-  const infoText = `${e} *Admins del grupo:*
-
-${listAdmin}
-
-> Mensaje: ${oi}
-
-${e} Evita usar este comando con otras intenciones o serás *eliminado* o *baneado* del Bot.`.trim()
-
-  const thumbBuffer = pp
-    ? await (await fetch(pp)).buffer().catch(() => null)
-    : null
-
-  await conn.sendMessage(
-    m.chat,
-    {
-      text: infoText,
-      mentions: admins,
-      contextInfo: {
-        externalAdReply: {
-          title: groupMetadata.subject || 'Administradores',
-          body: textbot,
-          thumbnailUrl: redes,
-          thumbnail: thumbBuffer || undefined,
-          sourceUrl: redes,
-          mediaType: 1
-        }
+      let jid = p.id;
+      if (jid.endsWith("@lid")) {
+        const real = participants.find(x => x.id === jid && x.jid);
+        if (real?.jid) jid = real.jid;
       }
-    },
-    { quoted: m }
-  )
-}
 
-handler.help = ['admins']
-handler.tags = ['grupo']
-handler.command = ['admins', '@admins', 'dmins']
-handler.group = true
+      jid = jidNormalizedUser(jid);
+      admins.push(jid);
+    }
 
-export default handler
+    if (!admins.length)
+      return m.reply("❌ No se encontraron administradores.");
+
+    const texto = args.length ? args.join(" ") : "¡Atención administradores!";
+    const listado = admins
+      .map(jid => `@${jid.split("@")[0]}`)
+      .join("\n");
+
+    const infoText = `${e} *Admins del grupo:*
+
+${listado}
+
+> Mensaje:
+» ${texto}`.trim();
+    let thumbBuffer;
+    try {
+      const pp = await conn.profilePictureUrl(m.chat, "image");
+      thumbBuffer = await (await fetch(pp)).buffer();
+    } catch {
+      thumbBuffer = undefined;
+    }
+
+    await conn.sendMessage(
+      m.chat,
+      {
+        text: infoText,
+        mentions: admins,
+        contextInfo: {
+          externalAdReply: {
+            title: groupMetadata.subject || "Administradores",
+            body: textbot,
+            thumbnailUrl: redes,
+            thumbnail: thumbBuffer,
+            sourceUrl: redes,
+            mediaType: 1
+          }
+        }
+      },
+      { quoted: m }
+    );
+
+  } catch (e) {
+    console.error("[ADMINS ERROR]", e);
+    m.reply(`${e} Ocurrió un error al mencionar a los administradores.`);
+  }
+};
+
+handler.help = ["admins"];
+handler.tags = ["grupo"];
+handler.command = ["admins", "@admins", "tagadmins"];
+handler.group = true;
+
+export default handler;
