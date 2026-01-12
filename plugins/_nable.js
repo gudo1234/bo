@@ -7,7 +7,6 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin })
 
   const opcionesValidas = {
     welcome: 'chat',
-    soloadmin: 'chat',
     nsfw: 'chat',
     detect: 'chat',
     antilink: 'chat',
@@ -79,7 +78,7 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin })
 
 handler.help = [
   'on', 'off', 'enable', 'disable',
-  'welcome', 'bienvenida', 'soloadmin',
+  'welcome',
   'nsfw',
   'detect', 'antilink',
   'antifake', 'antibot',
@@ -90,8 +89,7 @@ handler.help = [
 handler.tags = ['configuración']
 handler.command = [
   'on', 'off', 'enable', 'disable',
-  'welcome', 'bienvenida',
-  'autoaceptar', 'soloadmin',
+  'welcome',
   'nsfw',
   'detect', 'antilink',
   'antifake', 'antibot',
