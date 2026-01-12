@@ -13,6 +13,24 @@ ${listAdmin}
 
 ${e} Evita usar este comando con otras intenciones o seras *eliminado* o *baneado* del Bot.`.trim();
   conn.sendFile(m.chat, pp, 'error.jpg', text, m, false, {mentions: [...groupAdmins.map((v) => v.id), owner]});
+  await conn.sendMessage(
+      m.chat,
+      {
+        text: text,
+        mentions: [...groupAdmins.map((v) => v.id), owner],
+        contextInfo: {
+          externalAdReply: {
+            title: "Administradores",
+            body: textbot,
+            thumbnailUrl: redes,
+            thumbnail: pp,
+            sourceUrl: redes,
+            mediaType: 1
+          }
+        }
+      },
+      { quoted: m }
+    );
 };
 
 handler.help = ["admins"]
