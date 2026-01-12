@@ -13,32 +13,37 @@ let handler = async (m, { conn, args }) => {
 
         await m.react("🕒");
 
-        const apiURL = `https://delirius-apiofc.vercel.app/download/twitterdl?url=${encodeURIComponent(args[0])}`;
+        // API Twitter v2
+        const apiURL = `https://api.delirius.store/download/twitterv2?url=${encodeURIComponent(args[0])}`;
         const apiResponse = await axios.get(apiURL);
         const res = apiResponse.data;
 
-        if (!res.media || res.media.length === 0) {
+        if (!res.status || !res.data || !res.data.media || res.data.media.length === 0) {
             return m.reply(`${e} 🌊 Este tweet no contiene videos o imágenes descargables.`);
         }
 
-        const caption = res.caption ? res.caption : `${e} _Video de Twitter (X)_`;
+        const mediaItem = res.data.media[0]; // Tomamos el primer media
+        const caption = res.data.description || `${e} _Media de Twitter (X)_`;
 
-        if (res.type === "video") {
+        if (mediaItem.type === "video") {
+            // Elegimos el video de mayor calidad
+            const bestVideo = mediaItem.videos.sort((a, b) => b.bitrate - a.bitrate)[0];
+
             await conn.sendFile(
                 m.chat,
-                res.media[0].url,
+                bestVideo.url,
                 'video.mp4',
                 caption,
                 m,
                 null,
                 rcanal
             );
-        } else if (res.type === "image") {
+        } else if (mediaItem.type === "image") {
             await conn.sendFile(
                 m.chat,
-                res.media[0].url,
+                mediaItem.cover,
                 'image.jpg',
-                `${e} _Imagen de Twitter (X)_`,
+                caption,
                 m,
                 null,
                 rcanal
@@ -51,7 +56,6 @@ let handler = async (m, { conn, args }) => {
         console.error(err);
         await m.reply(`${e} *Error al descargar el archivo.*`);
         await m.react("❌");
-
     } finally {
         enviando = false;
     }
