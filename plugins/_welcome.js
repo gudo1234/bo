@@ -2,18 +2,29 @@ import fs from 'fs'
 import { join } from 'path'
 import Jimp from 'jimp';
 import fetch from 'node-fetch'
-import { execSync } from 'child_process'
 import path from 'path'
 import { sticker } from '../lib/sticker.js'
 
 let handler = async (m, { conn, __dirname }) => {
-  let chat = db.data.chats[m.chat];
-if (!chat.welcome || !m.isGroup) return !0;
-  if (!m.messageStubType || ![27, 28].includes(m.messageStubType)) return
+  const chat = global.db?.data?.chats?.[m.chat] || {}
+  const welcomeEnabled = chat.welcome ?? chat.bienvenida
+  if (!m.isGroup || !welcomeEnabled) return true
+  if (!m.messageStubType || ![27, 28, 32].includes(m.messageStubType)) return
 
   const isWelcome = m.messageStubType === 27
-  const isBye = m.messageStubType === 28
-    const user = m.messageStubParameters?.[0] || ''
+  const isBye = m.messageStubType === 28 || m.messageStubType === 32
+  let user = m.messageStubParameters?.[0]
+  if (!user) return
+  if (user.endsWith('@lid') && m.isGroup) {
+    const metadata = await conn.groupMetadata(m.chat).catch(() => null)
+    const match = metadata?.participants?.find(p => p.id === user && p.jid)
+    if (match?.jid) user = match.jid
+  }
+  const channelInfo = global.channelRD || {}
+  const channel = global.canal || global.redes || ''
+  const wm = global.wm
+  const textbot = global.textbot
+  const redes = global.redes
 let name
 try {
   name = await conn.getName(user)
@@ -29,7 +40,7 @@ try {
     groupName = metadata.subject
     tantos = metadata.participants.length
   }
-  let pp = await conn.profilePictureUrl(m.messageStubParameters[0], 'image').catch(_ => icono)
+  let pp = await conn.profilePictureUrl(user, 'image').catch(_ => global.icono)
   let im = await (await fetch(pp)).buffer()
   let uptime = process.uptime() * 1000
   let run = clockString(uptime)
@@ -87,13 +98,15 @@ const audioPick = arr => arr[Math.floor(Math.random() * arr.length)]
     ? `${e} Bienvenid@, ${name}`
     : `👋🏻 Adiós, ${name}`
   
-  const newsletterInfo = {
-      forwardedNewsletterMessageInfo: {
-        newsletterJid: channelRD.id,
-        newsletterName: channelRD.name,
-        serverMessageId: 0
+  const newsletterInfo = channelInfo?.id
+    ? {
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: channelInfo.id,
+          newsletterName: channelInfo.name,
+          serverMessageId: 0
+        }
       }
-    }
+    : {}
 
   const contextInfo = {
     mentionedJid: [user],
