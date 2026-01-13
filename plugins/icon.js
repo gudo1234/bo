@@ -3,23 +3,9 @@ import { S_WHATSAPP_NET, downloadContentFromMessage } from "@whiskeysockets/bail
 
 const handler = async (m, { conn }) => {
     try {
-        const groupId = m.chat;
-        let q = null;
+        const q = m.quoted ? m.quoted : m;
 
-        if (m.quoted) {
-            q = m.quoted;
-        } else {
-            const ctxQuoted = m.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-            if (ctxQuoted && ctxQuoted.imageMessage) {
-                q = { ...m, message: ctxQuoted };
-            } else if (m.message?.imageMessage || /image/.test(m.mimetype || "")) {
-                q = m;
-            } else {
-                q = null;
-            }
-        }
-
-        if (!q) return m.reply(`${e} Envía o responde a una imagen para actualizar el icono del bot.`);
+        if (!q) return m.reply(`${e} Responde a una imagen para actualizar el icono del bot.`);
 
         const mimetype = q.msg?.mimetype || q.mimetype || q.message?.imageMessage?.mimetype || "";
         if (!/image/.test(mimetype)) return m.reply(`${e} El mensaje respondido no es una imagen.`);
@@ -61,7 +47,7 @@ const handler = async (m, { conn }) => {
             tag: "iq",
             attrs: {
                 to: S_WHATSAPP_NET,
-                target: groupId,
+                target: S_WHATSAPP_NET,
                 type: "set",
                 xmlns: "w:profile:picture"
             },
@@ -74,7 +60,7 @@ const handler = async (m, { conn }) => {
             ]
         });
 
-        await m.reply("✅ Imagen del bot actualizada correctamente.");
+        await m.reply("✅ Foto de perfil del bot actualizada correctamente.");
         await m.react("✅");
 
     } catch (err) {
