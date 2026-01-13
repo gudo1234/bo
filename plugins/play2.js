@@ -152,7 +152,7 @@ const handler = async (m, { conn, args, command }) => {
   } catch (err) {
     console.error(err);
     await m.react("✖️");
-    return m.reply("❌ Ocurrió un error inesperado al procesar la descarga.");
+    return m.reply(err);
   }
 };
 
