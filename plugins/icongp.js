@@ -88,7 +88,5 @@ handler.help = ["icongp"];
 handler.tags = ["grupo"];
 handler.command = ["icongp", "setppgroup", "setppgp"];
 handler.group = true;
-handler.botAdmin = true;
-handler.onlyAdmin = true;
-
+handler.admin = true;
 export default handler;
