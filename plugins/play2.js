@@ -124,12 +124,21 @@ const handler = async (m, { conn, args, command }) => {
     const resApi = await safeFetch(apiUrl);
     const jsonApi = await safeJson(resApi);
 
-    if (!jsonApi?.status || !jsonApi?.result?.dlink) {
+    if (!jsonApi?.status || !jsonApi?.result) {
       await m.react("✖️");
-      return m.reply("❌ La API deline no devolvió un enlace válido.");
+      return m.reply("❌ La API deline no devolvió un resultado válido.");
     }
 
-    const fileLink = jsonApi.result.dlink;
+    // AUDIO usa dlink, VIDEO usa downloadUrl
+    const fileLink = isAudio
+      ? jsonApi.result.dlink
+      : jsonApi.result.downloadUrl;
+
+    if (!fileLink) {
+      await m.react("✖️");
+      return m.reply("❌ La API deline no devolvió un enlace válido para este video.");
+    }
+
     const fileName = `${jsonApi.result.youtube?.title || title}.${isAudio ? "mp3" : "mp4"}`;
     const mimetype = isAudio ? "audio/mpeg" : "video/mp4";
 
