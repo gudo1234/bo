@@ -37,9 +37,6 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
   await m.react("🕒")
 
   try {
-    // -------------------------------
-    // BUSCAR VIDEO
-    // -------------------------------
     const query = args.join(" ")
     const ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
     const ytMatch = query.match(ytRegex)
@@ -75,10 +72,6 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
 
 ⏳ _Preparando ${type}..._${aviso}
 `.trim()
-
-    // -------------------------------
-    // THUMBNAIL
-    // -------------------------------
     let thumb = null
     try {
       const res = await safeFetch(thumbnail)
@@ -105,10 +98,6 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
       },
       { quoted: m }
     )
-
-    // -------------------------------
-    // SANKAVOLLEREI (ÚNICA API)
-    // -------------------------------
     const apiUrl = isAudio
       ? `https://www.sankavollerei.com/download/ytmp3?apikey=planaai&url=${encodeURIComponent(url)}`
       : `https://www.sankavollerei.com/download/ytmp4?apikey=planaai&url=${encodeURIComponent(url)}`
@@ -123,10 +112,6 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
       link: apiUrl,
       title
     }
-
-    // -------------------------------
-    // ENVÍO FINAL
-    // -------------------------------
     const fileName = `${data.title}.${isAudio ? "mp3" : "mp4"}`
     const mimetype = isAudio ? "audio/mpeg" : "video/mp4"
 
