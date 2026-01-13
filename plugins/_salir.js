@@ -20,6 +20,6 @@ handler.customPrefix = /🚲/
 handler.command = new RegExp
 //handler.command = ['salir']
 handler.group = true
-handler.rowner = true
+//handler.rowner = true
 
 export default handler
