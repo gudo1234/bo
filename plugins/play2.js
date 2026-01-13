@@ -6,8 +6,10 @@ const safeFetch = async (url, options = {}) => {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
+
     const response = await fetch(url, { ...options, signal: controller.signal });
     clearTimeout(timeout);
+
     if (!response.ok) return null;
     return response;
   } catch {
@@ -23,9 +25,14 @@ const safeJson = async (res) => {
   }
 };
 
-const handler = async (m, { conn, args }) => {
+const handler = async (m, { conn, args, command }) => {
+  const docAudio = ['play3', 'ytadoc', 'mp3doc', 'ytmp3doc'];
+  const docVideo = ['play4', 'ytvdoc', 'mp4doc', 'ytmp4doc'];
+  const normalAudio = ['play', 'yta', 'mp3', 'ytmp3', 'playaudio'];
+  const normalVideo = ['play2', 'ytv', 'mp4', 'ytmp4', 'playvid'];
+
   if (!args || args.length === 0)
-    return m.reply("❌ Ingresa texto o enlace de YouTube para descargar el video.");
+    return m.reply("❌ Ingresa texto o enlace de YouTube para descargar.");
 
   await m.react("🕒");
 
@@ -67,6 +74,11 @@ const handler = async (m, { conn, args }) => {
     const toSeconds = t => t.split(":").reduce((a, n) => a * 60 + +n, 0);
     const mins = toSeconds(duration) / 60;
 
+    const sendDoc = mins > 20 || docVideo.includes(command);
+    const isAudio = [...docAudio, ...normalAudio].includes(command);
+
+    const type = isAudio ? (sendDoc ? "audio (doc)" : "audio") : (sendDoc ? "video (doc)" : "video");
+
     const caption = `╭──── • ────╮
 > ✰ *Título:* ${title}
 > ♢ *Canal:* ${author?.name}
@@ -76,7 +88,7 @@ const handler = async (m, { conn, args }) => {
 > ♬ *Link:* ${url}
 ╰──── • ────╯
 
-⏳ _Preparando video como documento..._`.trim();
+⏳ _Preparando ${type}..._`.trim();
 
     // -------------------------
     // Thumbnail
@@ -93,33 +105,33 @@ const handler = async (m, { conn, args }) => {
     // -------------------------
     // API Deline
     // -------------------------
-    const apiUrl = `https://api.deline.web.id/downloader/ytmp4?url=${encodeURIComponent(finalUrl)}`;
+    const apiUrl = isAudio
+      ? `https://api.deline.web.id/downloader/ytmp3?url=${encodeURIComponent(finalUrl)}`
+      : `https://api.deline.web.id/downloader/ytmp4?url=${encodeURIComponent(finalUrl)}`;
+
     const resApi = await safeFetch(apiUrl);
     const jsonApi = await safeJson(resApi);
 
-    if (!jsonApi?.status || !jsonApi?.result?.downloadUrl) {
+    if (!jsonApi?.status || !jsonApi?.result) {
       await m.react("✖️");
       return m.reply("❌ La API deline no devolvió un enlace válido.");
     }
 
-    const fileLink = jsonApi.result.downloadUrl;
-    const fileName = `${title}.mp4`;
+    let fileLink = isAudio ? jsonApi.result.dlink : jsonApi.result.downloadUrl;
+    let fileName = isAudio
+      ? `${jsonApi.result.youtube?.title || title}.mp3`
+      : `${jsonApi.result.youtube?.title || title}.mp4`;
 
     // -------------------------
-    // Enviar como documento
+    // Enviar archivo
     // -------------------------
-    await conn.sendMessage(
-      m.chat,
-      {
-        document: { url: fileLink },
-        mimetype: "video/mp4",
-        fileName,
-        jpegThumbnail: thumb,
-      },
-      { quoted: m }
-    );
+    const msg = sendDoc
+      ? { document: { url: fileLink }, mimetype: isAudio ? "audio/mpeg" : "video/mp4", fileName, jpegThumbnail: thumb }
+      : { [isAudio ? "audio" : "video"]: { url: fileLink }, mimetype: isAudio ? "audio/mpeg" : "video/mp4", ptt: false };
 
-    await m.react("🎬");
+    await conn.sendMessage(m.chat, msg, { quoted: m });
+
+    await m.react("🎧");
 
   } catch (err) {
     console.error(err);
@@ -128,6 +140,10 @@ const handler = async (m, { conn, args }) => {
   }
 };
 
-handler.command = ['video'];
+handler.command = [
+  'play', 'yta', 'mp3', 'ytmp3', 'playaudio',
+  'play2', 'ytv', 'mp4', 'ytmp4', 'playvid',
+  'video' // comando directo
+];
 handler.group = true;
 export default handler;
