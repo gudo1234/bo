@@ -6,20 +6,10 @@ const safeFetch = async (url, options = {}) => {
   try {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 15000)
-
     const response = await fetch(url, { ...options, signal: controller.signal })
     clearTimeout(timeout)
-
     if (!response.ok) return null
     return response
-  } catch {
-    return null
-  }
-}
-
-const safeJson = async (res) => {
-  try {
-    return res ? await res.json() : null
   } catch {
     return null
   }
@@ -99,60 +89,39 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
     } catch {}
 
     await conn.sendMessage(
-    m.chat,
-    {
+      m.chat,
+      {
         text: caption,
         contextInfo: {
-            externalAdReply: {
-                title: title,
-                body: textbot,
-                thumbnailUrl: redes,
-                thumbnail: thumb,
-                sourceUrl: redes,
-                mediaType: 1
-            }
+          externalAdReply: {
+            title: title,
+            body: textbot,
+            thumbnailUrl: redes,
+            thumbnail: thumb,
+            sourceUrl: redes,
+            mediaType: 1
+          }
         }
-    },
-    { quoted: m }
-)
-    let data = null
-    let usedApi = ""
+      },
+      { quoted: m }
+    )
 
-    // 1️⃣ ULTRAPLUS
-    const ultraplusUrl = isAudio
-      ? `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(url)}&type=audio&key=2yLJjTeqXudWiWB8`
-      : `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(url)}&type=video&key=2yLJjTeqXudWiWB8`
+    // -------------------------------
+    // SANKAVOLLEREI (ÚNICA API)
+    // -------------------------------
+    const apiUrl = isAudio
+      ? `https://www.sankavollerei.com/download/ytmp3?apikey=planaai&url=${encodeURIComponent(url)}`
+      : `https://www.sankavollerei.com/download/ytmp4?apikey=planaai&url=${encodeURIComponent(url)}`
 
-    // ⛔ Aquí Ultraplus no se consulta con fetch (tu API devuelve directo el link)
-    data = { link: ultraplusUrl, title }
-    usedApi = "ultraplus"
-
-    // 2️⃣ SANKAVOLLEREI (solo si falla)
-    const testReq = await safeFetch(ultraplusUrl)
-    if (!testReq) {
-      const sankoUrl = isAudio
-        ? `https://www.sankavollerei.com/download/ytmp3?apikey=planaai&url=${encodeURIComponent(url)}`
-        : `https://www.sankavollerei.com/download/ytmp4?apikey=planaai&url=${encodeURIComponent(url)}`
-
-      const res = await safeFetch(sankoUrl)
-      const json = await safeJson(res)
-
-      if (json) {
-        data = {
-          link:
-            json?.download?.url ||
-            json?.result?.dl ||
-            json?.result?.download ||
-            null,
-          title: json?.metadata?.title || json?.result?.title || title
-        }
-        usedApi = "sankovollerei"
-      }
+    const test = await safeFetch(apiUrl)
+    if (!test) {
+      await m.react("✖️")
+      return m.reply("❌ La API de descarga no respondió.")
     }
 
-    if (!data?.link) {
-      await m.react("✖️")
-      return m.reply(`${e} No se pudo obtener enlace desde ninguna API (todas fallaron).`)
+    const data = {
+      link: apiUrl,
+      title
     }
 
     // -------------------------------
@@ -166,11 +135,9 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
       : { [isAudio ? "audio" : "video"]: { url: data.link }, mimetype, fileName, ptt: false }
 
     await conn.sendMessage(m.chat, msg, { quoted: m })
-
-    await m.react(usedApi === "ultraplus" ? "✨" : "✅")
+    await m.react("✅")
 
   } catch {
-    // ERROR INVISIBLE — nunca muestra stacktrace
     return m.reply(`${e} No se pudo procesar la descarga, intenta de nuevo.`)
   }
 }
