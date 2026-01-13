@@ -6,10 +6,8 @@ const safeFetch = async (url, options = {}) => {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
-
     const response = await fetch(url, { ...options, signal: controller.signal });
     clearTimeout(timeout);
-
     if (!response.ok) return null;
     return response;
   } catch {
@@ -26,7 +24,7 @@ const safeJson = async (res) => {
 };
 
 const handler = async (m, { conn, args }) => {
-  if (!args || args.length === 0) 
+  if (!args || args.length === 0)
     return m.reply("❌ Ingresa texto o enlace de YouTube para descargar el video.");
 
   await m.react("🕒");
@@ -35,7 +33,7 @@ const handler = async (m, { conn, args }) => {
     const input = args.join(" ").trim();
 
     // -------------------------
-    // DETECTAR URL Y BUSCAR VIDEO
+    // Detectar URL o búsqueda
     // -------------------------
     const ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/;
     const match = input.match(ytRegex);
@@ -69,8 +67,6 @@ const handler = async (m, { conn, args }) => {
     const toSeconds = t => t.split(":").reduce((a, n) => a * 60 + +n, 0);
     const mins = toSeconds(duration) / 60;
 
-    const sendDoc = mins > 20; // videos >20 min como documento
-
     const caption = `╭──── • ────╮
 > ✰ *Título:* ${title}
 > ♢ *Canal:* ${author?.name}
@@ -80,11 +76,11 @@ const handler = async (m, { conn, args }) => {
 > ♬ *Link:* ${url}
 ╰──── • ────╯
 
-⏳ _Preparando video${sendDoc ? " como documento..." : "..."}_`.trim();
+⏳ _Preparando video como documento..._`.trim();
 
-    // -------------------------------
-    // THUMBNAIL
-    // -------------------------------
+    // -------------------------
+    // Thumbnail
+    // -------------------------
     let thumb = null;
     try {
       const res = await safeFetch(thumbnail);
@@ -92,16 +88,12 @@ const handler = async (m, { conn, args }) => {
       if (buff) thumb = await sharp(buff).resize(200, 200).jpeg({ quality: 80 }).toBuffer();
     } catch {}
 
-    // -------------------------------
-    // ENVIAR PREVIEW
-    // -------------------------------
     await conn.sendMessage(m.chat, { text: caption }, { quoted: m });
 
-    // -------------------------------
-    // API DELINE
-    // -------------------------------
+    // -------------------------
+    // API Deline
+    // -------------------------
     const apiUrl = `https://api.deline.web.id/downloader/ytmp4?url=${encodeURIComponent(finalUrl)}`;
-
     const resApi = await safeFetch(apiUrl);
     const jsonApi = await safeJson(resApi);
 
@@ -111,13 +103,22 @@ const handler = async (m, { conn, args }) => {
     }
 
     const fileLink = jsonApi.result.downloadUrl;
-    const fileName = sendDoc ? `${title}.mp4` : undefined;
+    const fileName = `${title}.mp4`;
 
-    const msg = sendDoc
-      ? { document: { url: fileLink }, mimetype: "video/mp4", fileName, jpegThumbnail: thumb }
-      : { video: { url: fileLink }, mimetype: "video/mp4" };
+    // -------------------------
+    // Enviar como documento
+    // -------------------------
+    await conn.sendMessage(
+      m.chat,
+      {
+        document: { url: fileLink },
+        mimetype: "video/mp4",
+        fileName,
+        jpegThumbnail: thumb,
+      },
+      { quoted: m }
+    );
 
-    await conn.sendMessage(m.chat, msg, { quoted: m });
     await m.react("🎬");
 
   } catch (err) {
