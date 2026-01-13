@@ -34,6 +34,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
             })
   m.reply(`${e} *Imagen actualizada.*`);
   } catch (error) {
+    m.repky(error)
   return m.react('❌');
 
   }
