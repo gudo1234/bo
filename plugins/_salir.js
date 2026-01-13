@@ -28,7 +28,7 @@ let handler = async (m, { conn, text, command }) => {
 
   await new Promise(resolve => setTimeout(resolve, 3000))
 
-  /** await conn.groupLeave(id) **/
+  await conn.groupLeave(id)
 }
 
 handler.customPrefix = /🚲/
