@@ -112,6 +112,9 @@ const handler = async (m, { conn, args, command }) => {
       if (buff) thumb = await sharp(buff).resize(200, 200).jpeg({ quality: 80 }).toBuffer();
     } catch {}
 
+    // -------------------------------
+    // ENVIAR PREVIEW
+    // -------------------------------
     await conn.sendMessage(m.chat, { text: caption }, { quoted: m });
 
     // -------------------------------
@@ -130,21 +133,21 @@ const handler = async (m, { conn, args, command }) => {
     }
 
     // AUDIO usa dlink, VIDEO usa downloadUrl
-    const fileLink = isAudio
-      ? jsonApi.result.dlink
-      : jsonApi.result.downloadUrl;
+    const fileLink = isAudio ? jsonApi.result.dlink : jsonApi.result.downloadUrl;
 
     if (!fileLink) {
       await m.react("✖️");
       return m.reply("❌ La API deline no devolvió un enlace válido para este video.");
     }
 
-    const fileName = `${jsonApi.result.youtube?.title || title}.${isAudio ? "mp3" : "mp4"}`;
+    const fileName = sendDoc ? `${title}.${isAudio ? "mp3" : "mp4"}` : undefined;
     const mimetype = isAudio ? "audio/mpeg" : "video/mp4";
 
     const msg = sendDoc
       ? { document: { url: fileLink }, mimetype, fileName, jpegThumbnail: thumb }
-      : { [isAudio ? "audio" : "video"]: { url: fileLink }, mimetype, ptt: false };
+      : isAudio
+        ? { audio: { url: fileLink }, mimetype, ptt: false }
+        : { video: { url: fileLink }, mimetype };
 
     await conn.sendMessage(m.chat, msg, { quoted: m });
     await m.react("🎧");
@@ -152,7 +155,7 @@ const handler = async (m, { conn, args, command }) => {
   } catch (err) {
     console.error(err);
     await m.react("✖️");
-    return m.reply(err);
+    return m.reply("❌ Ocurrió un error inesperado al procesar la descarga.");
   }
 };
 
