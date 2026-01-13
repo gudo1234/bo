@@ -59,7 +59,6 @@ const handler = async (m, { conn, args, command }) => {
     if (match) {
       const id = match[1];
       finalUrl = `https://youtube.com/watch?v=${id}`;
-
       const search = await yts(finalUrl);
       videoInfo = search?.videos?.find(v => v.videoId === id);
     } else {
@@ -85,7 +84,6 @@ const handler = async (m, { conn, args, command }) => {
 
     const sendDoc = mins > 20 || docAudio.includes(command) || docVideo.includes(command);
     const isAudio = [...docAudio, ...normalAudio].includes(command);
-
     const type = isAudio ? (sendDoc ? "audio (doc)" : "audio") : (sendDoc ? "video (doc)" : "video");
     const aviso = !docAudio.includes(command) && !docVideo.includes(command) && mins > 20
       ? `\n> ‣ Se enviará como documento por superar 20 minutos.` : "";
@@ -99,8 +97,7 @@ const handler = async (m, { conn, args, command }) => {
 > ♬ *Link:* ${url}
 ╰──── • ────╯
 
-⏳ _Preparando ${type}..._${aviso}
-`.trim();
+⏳ _Preparando ${type}..._${aviso}`.trim();
 
     // -------------------------------
     // THUMBNAIL
@@ -132,7 +129,6 @@ const handler = async (m, { conn, args, command }) => {
       return m.reply("❌ La API deline no devolvió un resultado válido.");
     }
 
-    // AUDIO usa dlink, VIDEO usa downloadUrl
     const fileLink = isAudio ? jsonApi.result.dlink : jsonApi.result.downloadUrl;
 
     if (!fileLink) {
