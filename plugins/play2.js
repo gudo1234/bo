@@ -1,83 +1,79 @@
-import fetch from "node-fetch";
-import yts from "yt-search";
-import sharp from "sharp";
+import fetch from "node-fetch"
+import yts from "yt-search"
+import sharp from "sharp"
 
 const safeFetch = async (url, options = {}) => {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 15000)
 
-    const response = await fetch(url, { ...options, signal: controller.signal });
-    clearTimeout(timeout);
+    const response = await fetch(url, { ...options, signal: controller.signal })
+    clearTimeout(timeout)
 
-    if (!response.ok) return null;
-    return response;
+    if (!response.ok) return null
+    return response
   } catch {
-    return null;
+    return null
   }
-};
+}
 
 const safeJson = async (res) => {
   try {
-    return res ? await res.json() : null;
+    return res ? await res.json() : null
   } catch {
-    return null;
+    return null
   }
-};
+}
 
-const handler = async (m, { conn, args, command }) => {
-  const docAudio = ['play3', 'ytadoc', 'mp3doc', 'ytmp3doc'];
-  const docVideo = ['play4', 'ytvdoc', 'mp4doc', 'ytmp4doc'];
-  const normalAudio = ['play', 'yta', 'mp3', 'ytmp3', 'playaudio'];
-  const normalVideo = ['play2', 'ytv', 'mp4', 'ytmp4', 'playvid'];
+const handler = async (m, { conn, text, usedPrefix, command, args }) => {
 
-  if (!args || args.length === 0)
-    return m.reply("❌ Ingresa texto o enlace de YouTube para descargar.");
+  const docAudio = ['play3', 'ytadoc', 'mp3doc', 'ytmp3doc']
+  const docVideo = ['play4', 'ytvdoc', 'mp4doc', 'ytmp4doc']
+  const normalAudio = ['play', 'yta', 'mp3', 'ytmp3', 'playaudio']
+  const normalVideo = ['play2', 'ytv', 'mp4', 'ytmp4', 'playvid']
 
-  await m.react("🕒");
+  if (!text) {
+    const tipo = normalAudio.includes(command)
+      ? 'audio'
+      : docAudio.includes(command)
+      ? 'audio en documento'
+      : normalVideo.includes(command)
+      ? 'video'
+      : 'video en documento'
+
+    return m.reply(`${e} Ingresa _texto_ o _enlace_ de YouTube para descargar el *${tipo}.*`)
+  }
+
+  await m.react("🕒")
 
   try {
-    const input = args.join(" ").trim();
+    // -------------------------------
+    // BUSCAR VIDEO
+    // -------------------------------
+    const query = args.join(" ")
+    const ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+    const ytMatch = query.match(ytRegex)
+    const search = ytMatch ? `https://youtube.com/watch?v=${ytMatch[1]}` : query
 
-    // -------------------------
-    // Detectar URL o búsqueda
-    // -------------------------
-    const ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/;
-    const match = input.match(ytRegex);
-
-    let finalUrl = "";
-    let videoInfo = null;
-
-    if (match) {
-      const id = match[1];
-      finalUrl = `https://youtube.com/watch?v=${id}`;
-      const search = await yts(finalUrl);
-      videoInfo = search?.videos?.find(v => v.videoId === id);
-    } else {
-      const search = await yts(input);
-      if (!search?.videos?.length) {
-        await m.react("✖️");
-        return m.reply("❌ No encontré resultados.");
-      }
-      videoInfo = search.videos[0];
-      finalUrl = videoInfo.url;
+    const yt = await yts(search).catch(() => null)
+    const v = ytMatch ? yt?.videos?.find(x => x.videoId === ytMatch[1]) : yt?.videos?.[0]
+    if (!v) {
+      await m.react("✖️")
+      return m.reply("❌ No se encontró el video.")
     }
 
-    if (!videoInfo) {
-      await m.react("✖️");
-      return m.reply("❌ No se encontró el video.");
-    }
+    const { title, thumbnail, timestamp, views, ago, url, author } = v
+    const duration = timestamp || "0:00"
 
-    const { title, thumbnail, timestamp, views, ago, url, author } = videoInfo;
-    const duration = timestamp || "0:00";
+    const toSeconds = t => t.split(":").reduce((a, n) => a * 60 + +n, 0)
+    const mins = toSeconds(duration) / 60
 
-    const toSeconds = t => t.split(":").reduce((a, n) => a * 60 + +n, 0);
-    const mins = toSeconds(duration) / 60;
+    const sendDoc = mins > 20 || docAudio.includes(command) || docVideo.includes(command)
+    const isAudio = [...docAudio, ...normalAudio].includes(command)
+    const type = isAudio ? (sendDoc ? "audio (doc)" : "audio") : (sendDoc ? "video (doc)" : "video")
 
-    const sendDoc = mins > 20 || docVideo.includes(command);
-    const isAudio = [...docAudio, ...normalAudio].includes(command);
-
-    const type = isAudio ? (sendDoc ? "audio (doc)" : "audio") : (sendDoc ? "video (doc)" : "video");
+    const aviso = !docAudio.includes(command) && !docVideo.includes(command) && mins > 20
+      ? `\n> ‣ Se enviará como documento por superar 20 minutos.` : ""
 
     const caption = `╭──── • ────╮
 > ✰ *Título:* ${title}
@@ -88,62 +84,105 @@ const handler = async (m, { conn, args, command }) => {
 > ♬ *Link:* ${url}
 ╰──── • ────╯
 
-⏳ _Preparando ${type}..._`.trim();
+⏳ _Preparando ${type}..._${aviso}
+`.trim()
 
-    // -------------------------
-    // Thumbnail
-    // -------------------------
-    let thumb = null;
+    // -------------------------------
+    // THUMBNAIL
+    // -------------------------------
+    let thumb = null
     try {
-      const res = await safeFetch(thumbnail);
-      const buff = res ? Buffer.from(await res.arrayBuffer()) : null;
-      if (buff) thumb = await sharp(buff).resize(200, 200).jpeg({ quality: 80 }).toBuffer();
+      const res = await safeFetch(thumbnail)
+      const buff = res ? Buffer.from(await res.arrayBuffer()) : null
+      if (buff) {
+        thumb = await sharp(buff).resize(200, 200).jpeg({ quality: 80 }).toBuffer()
+      }
     } catch {}
 
-    await conn.sendMessage(m.chat, { text: caption }, { quoted: m });
+    // -------------------------------
+    // ENVIAR PREVIEW
+    // -------------------------------
+    await conn.sendMessage(m.chat, {
+      text: caption,
+      footer: textbot,
+      contextInfo: {
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: channelRD.id,
+          newsletterName: channelRD.name,
+          serverMessageId: -1,
+        },
+        externalAdReply: {
+          title: '🎧 YOUTUBE EXTRACTOR',
+          body: textbot,
+          thumbnail: thumb,
+          thumbnailUrl: redes,
+          sourceUrl: redes,
+          mediaType: 1,
+        },
+      }
+    }, { quoted: m })
 
-    // -------------------------
-    // API Deline
-    // -------------------------
-    const apiUrl = isAudio
-      ? `https://api.deline.web.id/downloader/ytmp3?url=${encodeURIComponent(finalUrl)}`
-      : `https://api.deline.web.id/downloader/ytmp4?url=${encodeURIComponent(finalUrl)}`;
+    // -------------------------------
+    // API DELINE
+    // -------------------------------
+    let data = null
+    let usedApi = "deline"
 
-    const resApi = await safeFetch(apiUrl);
-    const jsonApi = await safeJson(resApi);
+    try {
+      if (isAudio) {
+        const urlApi = `https://api.deline.web.id/downloader/ytmp3?url=${encodeURIComponent(url)}`
+        const res = await safeFetch(urlApi)
+        const json = await safeJson(res)
 
-    if (!jsonApi?.status || !jsonApi?.result) {
-      await m.react("✖️");
-      return m.reply("❌ La API deline no devolvió un enlace válido.");
+        if (json?.status && json?.result?.dlink) {
+          data = { link: json.result.dlink, title: json.result.youtube?.title || title }
+        } else {
+          throw new Error("No se obtuvo enlace de Deline")
+        }
+      } else {
+        const urlApi = `https://api.deline.web.id/downloader/ytmp4?url=${encodeURIComponent(url)}`
+        const res = await safeFetch(urlApi)
+        const json = await safeJson(res)
+
+        if (json?.status && json?.result?.downloadUrl) {
+          data = { link: json.result.downloadUrl, title: json.result.youtube?.title || title }
+        } else {
+          throw new Error("No se obtuvo enlace de Deline")
+        }
+      }
+    } catch {
+      await m.react("✖️")
+      return m.reply(`${e} No se pudo obtener enlace desde la API de Deline.`)
     }
 
-    let fileLink = isAudio ? jsonApi.result.dlink : jsonApi.result.downloadUrl;
-    let fileName = isAudio
-      ? `${jsonApi.result.youtube?.title || title}.mp3`
-      : `${jsonApi.result.youtube?.title || title}.mp4`;
+    // -------------------------------
+    // ENVÍO FINAL
+    // -------------------------------
+    const fileName = `${data.title}.${isAudio ? "mp3" : "mp4"}`
+    const mimetype = isAudio ? "audio/mpeg" : "video/mp4"
 
-    // -------------------------
-    // Enviar archivo
-    // -------------------------
     const msg = sendDoc
-      ? { document: { url: fileLink }, mimetype: isAudio ? "audio/mpeg" : "video/mp4", fileName, jpegThumbnail: thumb }
-      : { [isAudio ? "audio" : "video"]: { url: fileLink }, mimetype: isAudio ? "audio/mpeg" : "video/mp4", ptt: false };
+      ? { document: { url: data.link }, mimetype, fileName, jpegThumbnail: thumb }
+      : { [isAudio ? "audio" : "video"]: { url: data.link }, mimetype, fileName, ptt: false }
 
-    await conn.sendMessage(m.chat, msg, { quoted: m });
+    await conn.sendMessage(m.chat, msg, { quoted: m })
 
-    await m.react("🎧");
+    await m.react("✅")
 
-  } catch (err) {
-    console.error(err);
-    await m.react("✖️");
-    return m.reply("❌ Ocurrió un error al procesar la descarga.");
+  } catch {
+    // ERROR INVISIBLE — nunca muestra stacktrace
+    return m.reply(`${e} No se pudo procesar la descarga, intenta de nuevo.`)
   }
-};
+}
 
+handler.help = ["play", "play2", "play3", "play4"]
+handler.tags = ["descargas"]
 handler.command = [
   'play', 'yta', 'mp3', 'ytmp3', 'playaudio',
+  'play3', 'ytadoc', 'mp3doc', 'ytmp3doc',
   'play2', 'ytv', 'mp4', 'ytmp4', 'playvid',
-  'video' // comando directo
-];
-handler.group = true;
-export default handler;
+  'play4', 'ytvdoc', 'mp4doc', 'ytmp4doc'
+]
+handler.group = true
+export default handler
