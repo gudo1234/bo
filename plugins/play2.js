@@ -65,7 +65,10 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
     const toSeconds = t => t.split(":").reduce((a, n) => a * 60 + +n, 0)
     const mins = toSeconds(duration) / 60
 
-    const sendDoc = mins > 20 || docAudio.includes(command) || docVideo.includes(command)
+    //const sendDoc = mins > 20 || docAudio.includes(command) || docVideo.includes(command)
+    const sendDoc = !isAudio || mins > 20 || docAudio.includes(command) || docVideo.includes(command)
+    
+    
     const isAudio = [...docAudio, ...normalAudio].includes(command)
     const type = isAudio ? (sendDoc ? "audio (doc)" : "audio") : (sendDoc ? "video (doc)" : "video")
 
