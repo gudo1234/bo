@@ -140,9 +140,35 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
     const fileName = `${data.title}.${isAudio ? "mp3" : "mp4"}`
     const mimetype = isAudio ? "audio/mpeg" : "video/mp4"
 
-    const msg = sendDoc
+    /*const msg = sendDoc
       ? { document: { url: data.link }, mimetype, fileName, jpegThumbnail: thumb }
-      : { [isAudio ? "audio" : "video"]: { url: data.link }, mimetype, fileName, ptt: false }
+      : { [isAudio ? "audio" : "video"]: { url: data.link }, mimetype, fileName, ptt: false }*/
+    const msg = sendDoc
+  ? {
+      document: { url: data.link },
+      mimetype,
+      fileName,
+      jpegThumbnail: thumb
+    }
+  : isAudio
+  ? {
+      audio: { url: data.link },
+      mimetype,
+      fileName,
+      ptt: false
+    }
+  : {
+      video: {
+        url: data.link,
+        headers: {
+          "User-Agent": "Mozilla/5.0",
+          "Accept": "video/mp4",
+          "Accept-Encoding": "identity"
+        }
+      },
+      mimetype,
+      fileName
+  }
 
     await conn.sendMessage(m.chat, msg, { quoted: m })
 
