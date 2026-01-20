@@ -67,6 +67,10 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
 
     const sendDoc = mins > 20 || docAudio.includes(command) || docVideo.includes(command)
     const isAudio = [...docAudio, ...normalAudio].includes(command)
+    const type = isAudio ? (sendDoc ? "audio (doc)" : "audio") : (sendDoc ? "video (doc)" : "video")
+
+    const aviso = !docAudio.includes(command) && !docVideo.includes(command) && mins > 20
+      ? `\n> ‣ Se enviará como documento por superar 20 minutos.` : ""
 
     const caption = `╭──── • ────╮
 > ✰ *Título:* ${title}
@@ -77,7 +81,7 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
 > ♬ *Link:* ${url}
 ╰──── • ────╯
 
-⏳ _Preparando descarga..._
+⏳ _Preparando ${type}..._${aviso}
 `.trim()
 
     let thumb = null
@@ -89,7 +93,29 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
       }
     } catch {}
 
-    await conn.sendMessage(m.chat, { text: caption }, { quoted: m })
+    await conn.sendMessage(m.chat, {
+      text: caption,
+      footer: textbot,
+      contextInfo: {
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: channelRD.id,
+          newsletterName: channelRD.name,
+          serverMessageId: -1,
+        },
+        externalAdReply: {
+          title: '🎧 YOUTUBE EXTRACTOR',
+          body: textbot,
+          thumbnail: thumb,
+          thumbnailUrl: redes,
+          sourceUrl: redes,
+          mediaType: 1,
+        },
+      }
+    }, { quoted: m })
+
+    let data = null
+    let usedApi = ""
 
     const sylphyUrl = isAudio
       ? `https://sylphy.xyz/download/ytmp3?url=${encodeURIComponent(url)}&api_key=sylphy-FBU1gDr`
@@ -98,44 +124,28 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
     const res = await safeFetch(sylphyUrl)
     const json = await safeJson(res)
 
-    if (!json?.status || !json?.result) throw 0
+    if (json?.status && json?.result) {
+      data = {
+        link: isAudio ? json.result.dl_url : json.result.url,
+        title: json.result.title || title
+      }
+      usedApi = "sylphy"
+    }
 
-    const data = {
-      link: isAudio ? json.result.dl_url : json.result.url,
-      title: json.result.title || title
+    if (!data?.link) {
+      await m.react("✖️")
+      return m.reply(`${e} No se pudo obtener enlace desde ninguna API (todas fallaron).`)
     }
 
     const fileName = `${data.title}.${isAudio ? "mp3" : "mp4"}`
     const mimetype = isAudio ? "audio/mpeg" : "video/mp4"
 
     const msg = sendDoc
-      ? {
-          document: { url: data.link },
-          mimetype,
-          fileName,
-          jpegThumbnail: thumb
-        }
-      : isAudio
-      ? {
-          audio: { url: data.link },
-          mimetype,
-          fileName,
-          ptt: false
-        }
-      : {
-          video: {
-            url: data.link,
-            headers: {
-              "User-Agent": "Mozilla/5.0",
-              "Accept": "video/mp4",
-              "Accept-Encoding": "identity"
-            }
-          },
-          mimetype,
-          fileName
-        }
+      ? { document: { url: data.link }, mimetype, fileName, jpegThumbnail: thumb }
+      : { [isAudio ? "audio" : "video"]: { url: data.link }, mimetype, fileName, ptt: false }
 
     await conn.sendMessage(m.chat, msg, { quoted: m })
+
     await m.react("✨")
 
   } catch {
