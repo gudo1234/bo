@@ -47,9 +47,6 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
   await m.react("🕒")
 
   try {
-    // -------------------------------
-    // BUSCAR VIDEO
-    // -------------------------------
     const query = args.join(" ")
     const ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
     const ytMatch = query.match(ytRegex)
@@ -87,9 +84,6 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
 ⏳ _Preparando ${type}..._${aviso}
 `.trim()
 
-    // -------------------------------
-    // THUMBNAIL
-    // -------------------------------
     let thumb = null
     try {
       const res = await safeFetch(thumbnail)
@@ -99,9 +93,6 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
       }
     } catch {}
 
-    // -------------------------------
-    // ENVIAR PREVIEW
-    // -------------------------------
     await conn.sendMessage(m.chat, {
       text: caption,
       footer: textbot,
@@ -123,42 +114,22 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
       }
     }, { quoted: m })
 
-    // -------------------------------
-    // APIs
-    // -------------------------------
     let data = null
     let usedApi = ""
 
-    // 1️⃣ ULTRAPLUS
-    const ultraplusUrl = isAudio
-      ? `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(url)}&type=audio&key=2yLJjTeqXudWiWB8`
-      : `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(url)}&type=video&key=2yLJjTeqXudWiWB8`
+    const sylphyUrl = isAudio
+      ? `https://sylphy.xyz/download/ytmp3?url=${encodeURIComponent(url)}&api_key=sylphy-FBU1gDr`
+      : `https://sylphy.xyz/download/ytmp4?url=${encodeURIComponent(url)}&q=&api_key=sylphy-FBU1gDr`
 
-    // ⛔ Aquí Ultraplus no se consulta con fetch (tu API devuelve directo el link)
-    data = { link: ultraplusUrl, title }
-    usedApi = "ultraplus"
+    const res = await safeFetch(sylphyUrl)
+    const json = await safeJson(res)
 
-    // 2️⃣ SANKAVOLLEREI (solo si falla)
-    const testReq = await safeFetch(ultraplusUrl)
-    if (!testReq) {
-      const sankoUrl = isAudio
-        ? `https://www.sankavollerei.com/download/ytmp3?apikey=planaai&url=${encodeURIComponent(url)}`
-        : `https://www.sankavollerei.com/download/ytmp4?apikey=planaai&url=${encodeURIComponent(url)}`
-
-      const res = await safeFetch(sankoUrl)
-      const json = await safeJson(res)
-
-      if (json) {
-        data = {
-          link:
-            json?.download?.url ||
-            json?.result?.dl ||
-            json?.result?.download ||
-            null,
-          title: json?.metadata?.title || json?.result?.title || title
-        }
-        usedApi = "sankovollerei"
+    if (json?.status && json?.result) {
+      data = {
+        link: isAudio ? json.result.dl_url : json.result.url,
+        title: json.result.title || title
       }
+      usedApi = "sylphy"
     }
 
     if (!data?.link) {
@@ -166,9 +137,6 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
       return m.reply(`${e} No se pudo obtener enlace desde ninguna API (todas fallaron).`)
     }
 
-    // -------------------------------
-    // ENVÍO FINAL
-    // -------------------------------
     const fileName = `${data.title}.${isAudio ? "mp3" : "mp4"}`
     const mimetype = isAudio ? "audio/mpeg" : "video/mp4"
 
@@ -178,10 +146,9 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
 
     await conn.sendMessage(m.chat, msg, { quoted: m })
 
-    await m.react(usedApi === "ultraplus" ? "✨" : "✅")
+    await m.react("✨")
 
   } catch {
-    // ERROR INVISIBLE — nunca muestra stacktrace
     return m.reply(`${e} No se pudo procesar la descarga, intenta de nuevo.`)
   }
 }
