@@ -124,36 +124,46 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
     }, { quoted: m })
 
     // -------------------------------
-    // API DELINE
+    // APIs
     // -------------------------------
     let data = null
-    let usedApi = "deline"
+    let usedApi = ""
 
-    try {
-      if (isAudio) {
-        const urlApi = `https://api.deline.web.id/downloader/ytmp3?url=${encodeURIComponent(url)}`
-        const res = await safeFetch(urlApi)
-        const json = await safeJson(res)
+    // 1️⃣ ULTRAPLUS
+    const ultraplusUrl = isAudio
+      ? `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(url)}&type=audio&key=2yLJjTeqXudWiWB8`
+      : `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(url)}&type=video&key=2yLJjTeqXudWiWB8`
 
-        if (json?.status && json?.result?.dlink) {
-          data = { link: json.result.dlink, title: json.result.youtube?.title || title }
-        } else {
-          throw new Error("No se obtuvo enlace de Deline")
+    // ⛔ Aquí Ultraplus no se consulta con fetch (tu API devuelve directo el link)
+    data = { link: ultraplusUrl, title }
+    usedApi = "ultraplus"
+
+    // 2️⃣ SANKAVOLLEREI (solo si falla)
+    const testReq = await safeFetch(ultraplusUrl)
+    if (!testReq) {
+      const sankoUrl = isAudio
+        ? `https://www.sankavollerei.com/download/ytmp3?apikey=planaai&url=${encodeURIComponent(url)}`
+        : `https://www.sankavollerei.com/download/ytmp4?apikey=planaai&url=${encodeURIComponent(url)}`
+
+      const res = await safeFetch(sankoUrl)
+      const json = await safeJson(res)
+
+      if (json) {
+        data = {
+          link:
+            json?.download?.url ||
+            json?.result?.dl ||
+            json?.result?.download ||
+            null,
+          title: json?.metadata?.title || json?.result?.title || title
         }
-      } else {
-        const urlApi = `https://api.deline.web.id/downloader/ytmp4?url=${encodeURIComponent(url)}`
-        const res = await safeFetch(urlApi)
-        const json = await safeJson(res)
-
-        if (json?.status && json?.result?.downloadUrl) {
-          data = { link: json.result.downloadUrl, title: json.result.youtube?.title || title }
-        } else {
-          throw new Error("No se obtuvo enlace de Deline")
-        }
+        usedApi = "sankovollerei"
       }
-    } catch {
+    }
+
+    if (!data?.link) {
       await m.react("✖️")
-      return m.reply(`${e} No se pudo obtener enlace desde la API de Deline.`)
+      return m.reply(`${e} No se pudo obtener enlace desde ninguna API (todas fallaron).`)
     }
 
     // -------------------------------
@@ -168,7 +178,7 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
 
     await conn.sendMessage(m.chat, msg, { quoted: m })
 
-    await m.react("✅")
+    await m.react(usedApi === "ultraplus" ? "✨" : "✅")
 
   } catch {
     // ERROR INVISIBLE — nunca muestra stacktrace
@@ -176,8 +186,6 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
   }
 }
 
-handler.help = ["play", "play2", "play3", "play4"]
-handler.tags = ["descargas"]
 handler.command = [
   'play', 'yta', 'mp3', 'ytmp3', 'playaudio',
   'play3', 'ytadoc', 'mp3doc', 'ytmp3doc',
