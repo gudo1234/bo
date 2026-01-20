@@ -65,11 +65,11 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
     const toSeconds = t => t.split(":").reduce((a, n) => a * 60 + +n, 0)
     const mins = toSeconds(duration) / 60
 
-    const sendDoc = mins > 20 || docAudio.includes(command) || docVideo.includes(command)
-    
-    
     const isAudio = [...docAudio, ...normalAudio].includes(command)
-    const type = isAudio ? (sendDoc ? "audio (doc)" : "audio") : (sendDoc ? "video (doc)" : "video")
+
+    const sendDoc = !isAudio || mins > 20 || docAudio.includes(command) || docVideo.includes(command)
+
+    const type = isAudio ? (sendDoc ? "audio (doc)" : "audio") : "video (doc)"
 
     const aviso = !docAudio.includes(command) && !docVideo.includes(command) && mins > 20
       ? `\n> ‣ Se enviará como documento por superar 20 minutos.` : ""
@@ -117,7 +117,6 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
     }, { quoted: m })
 
     let data = null
-    let usedApi = ""
 
     const sylphyUrl = isAudio
       ? `https://sylphy.xyz/download/ytmp3?url=${encodeURIComponent(url)}&api_key=sylphy-FBU1gDr`
@@ -131,12 +130,11 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
         link: isAudio ? json.result.dl_url : json.result.url,
         title: json.result.title || title
       }
-      usedApi = "sylphy"
     }
 
     if (!data?.link) {
       await m.react("✖️")
-      return m.reply(`${e} No se pudo obtener enlace desde ninguna API (todas fallaron).`)
+      return m.reply(`${e} No se pudo obtener enlace desde ninguna API.`)
     }
 
     const fileName = `${data.title}.${isAudio ? "mp3" : "mp4"}`
@@ -144,10 +142,9 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
 
     const msg = sendDoc
       ? { document: { url: data.link }, mimetype, fileName, jpegThumbnail: thumb }
-      : { [isAudio ? "audio" : "video"]: { url: data.link }, mimetype, fileName, ptt: false }
+      : { audio: { url: data.link }, mimetype, fileName, ptt: false }
 
     await conn.sendMessage(m.chat, msg, { quoted: m })
-
     await m.react("✨")
 
   } catch {
