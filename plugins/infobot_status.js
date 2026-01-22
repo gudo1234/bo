@@ -23,33 +23,33 @@ const handler = async (m, { conn }) => {
 
   const tag = (botname || wm || 'BOT').toString().toUpperCase();
   const lines = [
-    '┏━━━━━━━━━━━〔 🛰️ ESTADO SISTEMA 〕━━━━━━━━━━━┓',
+    '┏━━━〔 🛰️ ESTADO SISTEMA 〕━━━┓',
     `┃ ${tag}`,
-    '┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫',
+    '┣━━━━━━━━━━━━━━━━━━━┫',
     `┃ ⏱️  Uptime : ${uptime}`,
     `┃ ⚡ Latency: ${latency} ms`,
     `┃ 🆔 PID    : ${pid}`,
-    '┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫',
+    '┣━━━━━━━━━━━━━━━━━━━┫',
     `┃ 💻 Host   : ${hostname}`,
     `┃ 🧭 OS     : ${platform} (${arch})`,
     `┃ 🧩 Node   : ${node}`,
-    '┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫',
+    '┣━━━━━━━━━━━━━━━━━━━┫',
     `┃ 🧠 CPU    : ${cpu.model}`,
     `┃ 🧮 Cores  : ${cpu.cores}   ⛽ Load: ${load}`,
     `┃ 🧵 RAM    : ${mem.used} / ${mem.total} (${mem.percent}%)`,
     disk ? `┃ 💽 Disk   : ${disk.used} / ${disk.total} (${disk.percent}%)` : '┃ 💽 Disk   : n/d',
-    '┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫',
+    '┣━━━━━━━━━━━━━━━━━━━┫',
     netInfo
       ? `┃ 🌐 Net    : RX ${netInfo.rx} | TX ${netInfo.tx}`
       : '┃ 🌐 Net    : n/d',
-    '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛',
+    '┗━━━━━━━━━━━━━━━━━━━┛',
   ];
 
   const msg = lines.join('\n');
   await conn.sendMessage(m.chat, { text: msg }, { quoted: m });
 };
 
-handler.help = ['status', 'estado', 'vps'];
+handler.help = ['status'];
 handler.tags = ['info'];
 handler.command = ['status', 'estado', 'vps'];
 export default handler;
