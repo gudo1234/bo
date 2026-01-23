@@ -1,27 +1,29 @@
-export async function all(m, { conn, isOwner, isROwner }) {
-  if (conn._antiCallInstalled) return
-  conn._antiCallInstalled = true
+export async function onCall(call, { conn, isOwner, isROwner }) {
+  try {
+    // solo llamadas entrantes
+    if (call.status !== 'offer') return
 
-  conn.ev.on('call', async (calls) => {
-    for (const call of calls) {
-      if (call.status !== 'offer') continue
+    const chat = call.from
 
-      const jid = call.from
-      if (!jid) continue
+    // no afectar owner
+    if (isOwner || isROwner) return
 
-      let bot = global.db.data.settings[conn.user.jid] || {}
-      //if (!bot.antiCall) return
-     // if (isOwner || isROwner) return
+    await conn.sendMessage(chat, {
+      text: '🚫 No está permitido llamar al bot.'
+    })
 
-      try {
-        await conn.sendMessage(jid, {
-          text: `*No se permiten llamadas a la Bot*\n\nHas sido bloqueado automáticamente.`
-        })
-        await conn.rejectCall(call.id, call.from)
-        await conn.updateBlockStatus(jid, 'block')
-      } catch (e) {
-        console.error('Error AntiCall:', e)
-      }
-    }
-  })
+    // BLOQUEO DESACTIVADO TEMPORALMENTE
+    // await conn.updateBlockStatus(chat, 'block')
+
+  } catch (err) {
+    console.error(err)
+
+    // enviar error al número fijo
+    await conn.sendMessage('5493425242334@s.whatsapp.net', {
+      text:
+        `⚠️ ERROR EN ANTI-LLAMADAS\n\n` +
+        `Número: ${call.from}\n\n` +
+        `Error:\n${err.stack || err.message}`
+    })
+  }
 }
