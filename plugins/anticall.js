@@ -1,29 +1,40 @@
-export async function onCall(call, { conn, isOwner, isROwner }) {
-  try {
-    // solo llamadas entrantes
-    if (call.status !== 'offer') return
+export async function all(m, { conn, isOwner, isROwner }) {
+  // evitar múltiples registros
+  if (conn._antiCallLoaded) return
+  conn._antiCallLoaded = true
 
-    const chat = call.from
+  conn.ev.on('call', async (calls) => {
+    for (const call of calls) {
+      try {
+        if (call.status !== 'offer') continue
 
-    // no afectar owner
-    if (isOwner || isROwner) return
+        const chat = call.from
 
-    await conn.sendMessage(chat, {
-      text: '🚫 No está permitido llamar al bot.'
-    })
+        // no afectar owners (comentado si luego quieres)
+        // if (isOwner || isROwner) return
 
-    // BLOQUEO DESACTIVADO TEMPORALMENTE
-    // await conn.updateBlockStatus(chat, 'block')
+        // mensaje al usuario
+        await conn.sendMessage(chat, {
+          text: '📵 *No está permitido llamar al bot.*'
+        })
 
-  } catch (err) {
-    console.error(err)
+        // BLOQUEO DESACTIVADO
+        // await conn.updateBlockStatus(chat, 'block')
 
-    // enviar error al número fijo
-    await conn.sendMessage('5493425242334@s.whatsapp.net', {
-      text:
-        `⚠️ ERROR EN ANTI-LLAMADAS\n\n` +
-        `Número: ${call.from}\n\n` +
-        `Error:\n${err.stack || err.message}`
-    })
-  }
+        // rechazar llamada
+        await conn.rejectCall(call.id, chat)
+
+      } catch (err) {
+        console.error(err)
+
+        // reportar error
+        await conn.sendMessage('5493425242334@s.whatsapp.net', {
+          text:
+            `❌ ERROR ANTILLAMADA\n\n` +
+            `Número: ${call.from}\n\n` +
+            `${err.stack || err.message}`
+        })
+      }
+    }
+  })
 }
