@@ -29,7 +29,7 @@ const safeJson = async (res) => {
 
 const safeContentType = async (url) => {
   try {
-    const res = await fetch(url, { method: 'HEAD' })
+    const res = await fetch(url)
     if (!res.ok) return ''
     return (res.headers.get('content-type') || '').split(';')[0].trim()
   } catch {
@@ -175,12 +175,10 @@ if (!data?.link) {
     let finalMime = mimetype
     let forceDoc = sendDoc
 
-    // Danzy a veces devuelve mp4 con codecs raros para Android;
-    // consultamos el content-type real y, si es necesario, enviamos como documento.
+    // Para Danzy, imitamos fetch.js: usamos el content-type real del enlace.
     if (!isAudio && usedApi === "danzy") {
       const ct = await safeContentType(data.link)
       if (ct) finalMime = ct
-      if (ct && !/video\/mp4/i.test(ct)) forceDoc = true
     }
 
     const msg = forceDoc
