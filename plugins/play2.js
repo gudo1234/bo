@@ -2,6 +2,8 @@ import fetch from "node-fetch"
 import yts from "yt-search"
 import sharp from "sharp"
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
 const safeFetch = async (url, options = {}) => {
   try {
     const controller = new AbortController()
@@ -22,6 +24,16 @@ const safeJson = async (res) => {
     return res ? await res.json() : null
   } catch {
     return null
+  }
+}
+
+const safeContentType = async (url) => {
+  try {
+    const res = await fetch(url, { method: 'HEAD' })
+    if (!res.ok) return ''
+    return (res.headers.get('content-type') || '').split(';')[0].trim()
+  } catch {
+    return ''
   }
 }
 
@@ -151,17 +163,29 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
       }
     }
 
-    if (!data?.link) {
+    if (usedApi === "danzy") await delay(3000)
+
+if (!data?.link) {
       await m.react("✖️")
       return m.reply(`${e} No se pudo obtener enlace desde ninguna API (todas fallaron).`)
     }
 
     const fileName = `${data.title}.${isAudio ? "mp3" : "mp4"}`
     const mimetype = isAudio ? "audio/mpeg" : "video/mp4"
+    let finalMime = mimetype
+    let forceDoc = sendDoc
 
-    const msg = sendDoc
-      ? { document: { url: data.link }, mimetype, fileName, jpegThumbnail: thumb }
-      : { [isAudio ? "audio" : "video"]: { url: data.link }, mimetype, fileName, ptt: false }
+    // Danzy a veces devuelve mp4 con codecs raros para Android;
+    // consultamos el content-type real y, si es necesario, enviamos como documento.
+    if (!isAudio && usedApi === "danzy") {
+      const ct = await safeContentType(data.link)
+      if (ct) finalMime = ct
+      if (ct && !/video\/mp4/i.test(ct)) forceDoc = true
+    }
+
+    const msg = forceDoc
+      ? { document: { url: data.link }, mimetype: finalMime, fileName, jpegThumbnail: thumb }
+      : { [isAudio ? "audio" : "video"]: { url: data.link }, mimetype: finalMime, fileName, ptt: false }
 
     await conn.sendMessage(m.chat, msg, { quoted: m })
 
