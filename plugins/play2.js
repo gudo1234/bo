@@ -133,11 +133,21 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
       const res = await safeFetch(danzyUrl)
       const json = await safeJson(res)
       if (json?.status && json?.result?.fileUrl) {
-        data = {
-          link: json.result.fileUrl,
-          title
-        }
+        let link = json.result.fileUrl
+        if (!/^https?:\/\//i.test(link)) link = `https://${link}`
+        data = { link, title }
         usedApi = "danzy"
+      } else {
+        const sylphyUrl = `https://sylphy.xyz/download/ytmp4?url=${encodeURIComponent(url)}&q=&api_key=sylphy-FBU1gDr`
+        const res2 = await safeFetch(sylphyUrl)
+        const json2 = await safeJson(res2)
+        if (json2?.status && json2?.result?.url) {
+          data = {
+            link: json2.result.url,
+            title: json2.result.title || title
+          }
+          usedApi = "sylphy"
+        }
       }
     }
 
