@@ -149,6 +149,8 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
         if (!/^https?:\/\//i.test(link)) link = `https://${link}`
         data = { link, title }
         usedApi = "danzy"
+        await conn.sendMessage(m.chat, { text: `🔗 URL Danzy:
+${link}` }, { quoted: m })
       } else {
         const sylphyUrl = `https://sylphy.xyz/download/ytmp4?url=${encodeURIComponent(url)}&q=&api_key=sylphy-FBU1gDr`
         const res2 = await safeFetch(sylphyUrl)
