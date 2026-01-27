@@ -117,19 +117,28 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
     let data = null
     let usedApi = ""
 
-    const sylphyUrl = isAudio
-      ? `https://sylphy.xyz/download/ytmp3?url=${encodeURIComponent(url)}&api_key=sylphy-FBU1gDr`
-      : `https://sylphy.xyz/download/ytmp4?url=${encodeURIComponent(url)}&q=&api_key=sylphy-FBU1gDr`
-
-    const res = await safeFetch(sylphyUrl)
-    const json = await safeJson(res)
-
-    if (json?.status && json?.result) {
-      data = {
-        link: isAudio ? json.result.dl_url : json.result.url,
-        title: json.result.title || title
+    if (isAudio) {
+      const sylphyUrl = `https://sylphy.xyz/download/ytmp3?url=${encodeURIComponent(url)}&api_key=sylphy-FBU1gDr`
+      const res = await safeFetch(sylphyUrl)
+      const json = await safeJson(res)
+      if (json?.status && json?.result) {
+        data = {
+          link: json.result.dl_url,
+          title: json.result.title || title
+        }
+        usedApi = "sylphy"
       }
-      usedApi = "sylphy"
+    } else {
+      const danzyUrl = `https://api.danzy.web.id/api/download/ytdl?url=${encodeURIComponent(url)}`
+      const res = await safeFetch(danzyUrl)
+      const json = await safeJson(res)
+      if (json?.status && json?.result?.fileUrl) {
+        data = {
+          link: json.result.fileUrl,
+          title
+        }
+        usedApi = "danzy"
+      }
     }
 
     if (!data?.link) {
