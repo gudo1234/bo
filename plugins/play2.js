@@ -2,8 +2,6 @@ import fetch from "node-fetch"
 import yts from "yt-search"
 import sharp from "sharp"
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
 const safeFetch = async (url, options = {}) => {
   try {
     const controller = new AbortController()
@@ -24,16 +22,6 @@ const safeJson = async (res) => {
     return res ? await res.json() : null
   } catch {
     return null
-  }
-}
-
-const safeContentType = async (url) => {
-  try {
-    const res = await fetch(url)
-    if (!res.ok) return ''
-    return (res.headers.get('content-type') || '').split(';')[0].trim()
-  } catch {
-    return ''
   }
 }
 
@@ -129,63 +117,32 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
     let data = null
     let usedApi = ""
 
-    if (isAudio) {
-      const sylphyUrl = `https://sylphy.xyz/download/ytmp3?url=${encodeURIComponent(url)}&api_key=sylphy-FBU1gDr`
-      const res = await safeFetch(sylphyUrl)
-      const json = await safeJson(res)
-      if (json?.status && json?.result) {
-        data = {
-          link: json.result.dl_url,
-          title: json.result.title || title
-        }
-        usedApi = "sylphy"
+    const sylphyUrl = isAudio
+      ? `https://sylphy.xyz/download/ytmp3?url=${encodeURIComponent(url)}&api_key=sylphy-FBU1gDr`
+      : `https://sylphy.xyz/download/ytmp4?url=${encodeURIComponent(url)}&q=&api_key=sylphy-FBU1gDr`
+
+    const res = await safeFetch(sylphyUrl)
+    const json = await safeJson(res)
+
+    if (json?.status && json?.result) {
+      data = {
+        link: isAudio ? json.result.dl_url : json.result.url,
+        title: json.result.title || title
       }
-    } else {
-      const danzyUrl = `https://api.danzy.web.id/api/download/ytdl?url=${encodeURIComponent(url)}`
-      const res = await safeFetch(danzyUrl)
-      const json = await safeJson(res)
-      if (json?.status && json?.result?.fileUrl) {
-        let link = json.result.fileUrl
-        if (!/^https?:\/\//i.test(link)) link = `https://${link}`
-        data = { link, title }
-        usedApi = "danzy"
-        await conn.sendMessage(m.chat, { text: `🔗 URL Danzy:
-${link}` }, { quoted: m })
-      } else {
-        const sylphyUrl = `https://sylphy.xyz/download/ytmp4?url=${encodeURIComponent(url)}&q=&api_key=sylphy-FBU1gDr`
-        const res2 = await safeFetch(sylphyUrl)
-        const json2 = await safeJson(res2)
-        if (json2?.status && json2?.result?.url) {
-          data = {
-            link: json2.result.url,
-            title: json2.result.title || title
-          }
-          usedApi = "sylphy"
-        }
-      }
+      usedApi = "sylphy"
     }
 
-    if (usedApi === "danzy") await delay(3000)
-
-if (!data?.link) {
+    if (!data?.link) {
       await m.react("✖️")
       return m.reply(`${e} No se pudo obtener enlace desde ninguna API (todas fallaron).`)
     }
 
     const fileName = `${data.title}.${isAudio ? "mp3" : "mp4"}`
     const mimetype = isAudio ? "audio/mpeg" : "video/mp4"
-    let finalMime = mimetype
-    let forceDoc = sendDoc
 
-    // Para Danzy, imitamos fetch.js: usamos el content-type real del enlace.
-    if (!isAudio && usedApi === "danzy") {
-      const ct = await safeContentType(data.link)
-      if (ct) finalMime = ct
-    }
-
-    const msg = forceDoc
-      ? { document: { url: data.link }, mimetype: finalMime, fileName, jpegThumbnail: thumb }
-      : { [isAudio ? "audio" : "video"]: { url: data.link }, mimetype: finalMime, fileName, ptt: false }
+    const msg = sendDoc
+      ? { document: { url: data.link }, mimetype, fileName, jpegThumbnail: thumb }
+      : { [isAudio ? "audio" : "video"]: { url: data.link }, mimetype, fileName, ptt: false }
 
     await conn.sendMessage(m.chat, msg, { quoted: m })
 
