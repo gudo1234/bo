@@ -118,7 +118,7 @@ const connectionOptions = {
   syncFullHistory: false,
   markOnlineOnConnect: true,
   defaultQueryTimeoutMs: undefined,
-  version: [2, 3000, 1027934701],
+  version: [2, 3000, 1033846690],
   browser: ["Ubuntu", "Chrome", "20.0.04"],
   cachedGroupMetadata: global.cachedGroupMetadata
 
