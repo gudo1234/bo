@@ -9,7 +9,7 @@ import axios from 'axios'
 
 
 global.owner = [
-   ['50492280729', '🍁̶͢͞▻⟅ẹ𝆊ϋ⟆٭⳺֟፝͜⳻٭.er/k', true],
+   ['50492280729', '🪐 ݁𝆹𝅥𐙚˖ܵʑєܲυsܵ˖݁𝆹𝅥˃͈◡˂͈', true],
    ['5215539356057'], ['5215547835230']];
 
 global.mods = []
@@ -24,7 +24,7 @@ const emojiList = [
 
 const redesList = [
     "https://whatsapp.com/channel/0029VaXHNMZL7UVTeseuqw3H",
-    "https://wa.me/50495351584?text=Hola+quiero+un+bot+para+mi+grupo,+cuáles+son+los+planes?+",
+    "https://wa.me/50492280729?text=Hola+quiero+un+bot+para+mi+grupo,+cuáles+son+los+planes?+",
     "https://www.instagram.com/edar504__",
     "https://www.tiktok.com/@edar_xd",
     "https://www.paypal.me/edar504",
@@ -94,7 +94,7 @@ ch1: "120363401404146384@newsletter"
 
 global.packname = "🤖⃧►iʑυвöτ◃2.0▹"
 global.textbot = "Bot de mierd4";
-global.author = "🍁̶͢͞▻⟅ẹ𝆊ϋ⟆٭⳺֟፝͜⳻٭.er/k";
+global.author = "🪐 ݁𝆹𝅥𐙚˖ܵʑєܲυsܵ˖݁𝆹𝅥˃͈◡˂͈";
 global.wm = "🤖⃧►iʑυвöτ◃2.0▹"
 global.wait = 'Espera Por Favot'
 global.botname = '🤖⃧►iʑυвöτ◃2.0▹'
