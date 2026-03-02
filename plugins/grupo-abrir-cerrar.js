@@ -66,5 +66,6 @@ handler.tags = ["grupo"];
 handler.command = ["grupo", "abrir", "cerrar", "open", "close"];
 handler.group = true;
 handler.botAdmin = true;
+handler.admin = true;
 
 export default handler;
