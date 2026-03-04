@@ -46,23 +46,25 @@ var handler = async (m, { conn, participants, args, usedPrefix, command }) => {
 
     const userJid = detectarJid(m);
 
-    if (userJid) {
-        if (userJid === conn.user.jid)
-            return conn.reply(m.chat, `${e} No puedo eliminarme yo (bot) del grupo.`, m);
+if (userJid) {
+    if (userJid === m.sender)
+        return m.reply(`${e} No puedo eliminarte a ti mismo.`);
 
-        if (userJid === ownerGroup)
-            return conn.reply(m.chat, `${e} No puedo eliminar al propietario del grupo.`, m);
+    if (userJid === conn.user.jid)
+        return conn.reply(m.chat, `${e} No puedo eliminarme yo (bot) del grupo.`, m);
 
-        if (userJid === ownerBot)
-            return conn.reply(m.chat, `${e} No puedo eliminar al propietario del bot.`, m);
+    if (userJid === ownerGroup)
+        return conn.reply(m.chat, `${e} No puedo eliminar al propietario del grupo.`, m);
 
-        if (admins.includes(userJid))
-            return conn.reply(m.chat, `${e} No puedo eliminar a otro administrador del grupo.`, m);
+    if (userJid === ownerBot)
+        return conn.reply(m.chat, `${e} No puedo eliminar al propietario del bot.`, m);
 
-        await conn.groupParticipantsUpdate(m.chat, [userJid], 'remove');
-        return
-    }
+    if (admins.includes(userJid))
+        return conn.reply(m.chat, `${e} No puedo eliminar a otro administrador del grupo.`, m);
 
+    await conn.groupParticipantsUpdate(m.chat, [userJid], 'remove');
+    return;
+}
     if (args[0] && !isNaN(args[0])) {
         const prefix = "+" + args[0].replace(/\D/g, "");
 
