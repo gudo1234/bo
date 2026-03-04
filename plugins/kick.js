@@ -60,7 +60,7 @@ var handler = async (m, { conn, participants, args, usedPrefix, command }) => {
             return conn.reply(m.chat, `${e} No puedo eliminar a otro administrador del grupo.`, m);
 
         await conn.groupParticipantsUpdate(m.chat, [userJid], 'remove');
-        /*return conn.reply(m.chat, `✅ Usuario eliminado correctamente.`, m);*/
+        return
     }
 
     if (args[0] && !isNaN(args[0])) {
