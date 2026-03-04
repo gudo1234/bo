@@ -10,7 +10,7 @@ export async function before(m, { conn, args, usedPrefix, command }) {
     if (m.chat === '120363395205399025@newsletter') return !0
 
     // Verificación de la opción "boton" solo en privado
-    //if (!global.db.data.settings[conn.user.jid]?.boton || m.isGroup) return
+    if (!global.db.data.settings[conn.user.jid]?.boton || m.isGroup) return
 
     let vn = './media/prueba4.mp3'
     let vn2 = './media/prueba3.mp3'
