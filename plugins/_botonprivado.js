@@ -101,8 +101,35 @@ export async function before(m, { conn, args, usedPrefix, command }) {
     m.react('🤖')
 
     await conn.relayMessage(m.chat, { viewOnceMessage: { message } }, {});
-    await conn.sendFile(m.chat, [vn, vn2].getRandom(), 'prueba3.mp3', null, null, true, { 
-        type: 'audioMessage', 
-        ptt: true 
-    })
+    // 🎵 Lista completa de audios
+const audios = [
+  'https://raw.githubusercontent.com/edar123/im/main/media/a.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/bien.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/prueba3.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/prueba4.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/bloody.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/adios.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/prueba.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/sad.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/cardigansad.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/iwas.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/juntos.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/space.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/stellar.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/theb.mp3',
+  'https://raw.githubusercontent.com/edar123/im/main/media/alanspectre.mp3'
+]
+const audioRandom = audios[Math.floor(Math.random() * audios.length)]
+await conn.sendFile(
+  m.chat,
+  audioRandom,
+  'audio.mp3',
+  null,
+  m,
+  true,
+  {
+    type: 'audioMessage',
+    ptt: true
+  }
+)
       }
