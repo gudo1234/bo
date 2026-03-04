@@ -16,6 +16,7 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin })
     autoband: 'chat',
     audio: 'chat',
     jadibotmd: 'bot',
+    boton: 'bot',
   }
 
   let type = command.toLowerCase()
@@ -85,7 +86,8 @@ handler.help = [
   'autosticker',
   'autoband',
   'jadibotmd',
-  'audio']
+  'audio',
+  'boton']
 handler.tags = ['configuración']
 handler.command = [
   'on', 'off', 'enable', 'disable',
@@ -96,6 +98,7 @@ handler.command = [
   'autosticker',
   'autoband',
   'jadibotmd',
-  'audio']
+  'audio', 
+  'boton']
 
 export default handler
