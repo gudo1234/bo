@@ -125,7 +125,7 @@ await conn.sendFile(
   audioRandom,
   'audio.mp3',
   null,
-  m,
+  null,
   true,
   {
     type: 'audioMessage',
