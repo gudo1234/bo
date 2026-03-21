@@ -134,7 +134,7 @@ const contextInfo = {
     thumbnail: await (await fetch(icono)).buffer(),
     sourceUrl: redes,
     mediaType: 1,
-    renderLargerThumbnail: true
+    renderLargerThumbnail: false
   }
 }
 
