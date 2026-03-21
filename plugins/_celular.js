@@ -29,7 +29,7 @@ let handler = async (m, { conn, text, command }) => {
      '🔥 Ver más',
      channel
    ]],
-   m
+   null
  )
 
 }
