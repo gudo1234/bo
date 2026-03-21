@@ -1,27 +1,16 @@
-import fs from 'fs'
-import { join } from 'path'
-import * as Jimp from 'jimp';
 import fetch from 'node-fetch'
 
-let handler = async (m, { conn, __dirname }) => {
-let groupName = ''
-if (m.isGroup) {
+let handler = async (m, { conn }) => {
+  let groupName = ''
+  if (m.isGroup) {
     const metadata = await conn.groupMetadata(m.chat)
     groupName = metadata.subject
-}
+  }
 
   try {
-    // --- Imagen miniatura ---
-    const imgPath = join(__dirname, '../thumbnail.jpg')
-    const thumbLocal = fs.existsSync(imgPath) ? fs.readFileSync(imgPath) : null
-    const thumbResized = thumbLocal
-      ? await (await Jimp.read(thumbLocal)).resize(300, 150).getBufferAsync(Jimp.MIME_JPEG)
-      : null
-
-    // --- Menú simple ---
     const menu = `hola`
 
-    // --- Context info para botones y mensajes ---
+    // --- Context info ---
     const contextInfo = {
       externalAdReply: {
         title: wm,
@@ -34,25 +23,8 @@ if (m.isGroup) {
       }
     }
 
-    // --- Estructura del mensaje interactivo ---
+    // --- Native Flow SIN documento ---
     const nativeFlowPayload = {
-      header: {
-        documentMessage: {
-          url: 'https://mmg.whatsapp.net/v/t62.7119-24/539012045_745537058346694_1512031191239726227_n.enc',
-          mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          fileSha256: Buffer.from('fa09afbc207a724252bae1b764ecc7b13060440ba47a3bf59e77f01924924bfe', 'hex'),
-          fileLength: { low: -727379969, high: 232, unsigned: true },
-          pageCount: 0,
-          mediaKey: Buffer.from('3163ba7c8db6dd363c4f48bda2735cc0d0413e57567f0a758f514f282889173c', 'hex'),
-          fileName: '🎃 IzuBot AI WhatsApp',
-          fileEncSha256: Buffer.from('652f2ff6d8a8dae9f5c9654e386de5c01c623fe98d81a28f63dfb0979a44a22f', 'hex'),
-          directPath: '/v/t62.7119-24/539012045_745537058346694_1512031191239726227_n.enc',
-          mediaKeyTimestamp: { low: 1756370084, high: 0, unsigned: false },
-          jpegThumbnail: thumbResized || null,
-          contextInfo
-        },
-        hasMediaAttachment: true
-      },
       body: { text: '' },
       footer: { text: menu },
       nativeFlowMessage: {
@@ -132,15 +104,16 @@ if (m.isGroup) {
       contextInfo
     }
 
-    // --- Envío del mensaje ---
+    // --- Envío ---
     await conn.relayMessage(
       m.chat,
       { viewOnceMessage: { message: { interactiveMessage: nativeFlowPayload } } },
       { quoted: m }
     )
+
   } catch (e) {
-    console.error('Error al generar mensaje interactivo:', e)
-    await conn.reply(m.chat, `❌ Error al generar mensaje:\n${e.message}`, m)
+    console.error(e)
+    await conn.reply(m.chat, `❌ Error:\n${e.message}`, m)
   }
 }
 
