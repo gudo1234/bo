@@ -1,12 +1,17 @@
 import { getDevice } from "@whiskeysockets/baileys"
+import fetch from 'node-fetch'
 
-// Primero, asegurarnos de tener una "imagen global" de qu.ax
+// Cargar la imagen de qu.ax como global, lista para enviar
 if (!global.imagenQuAx) {
     global.imagenQuAx = null
     (async () => {
         try {
             const res = await fetch('https://qu.ax/nZoBe')
-            global.imagenQuAx = Buffer.from(await res.arrayBuffer())
+            // Detectar tipo de imagen si está disponible
+            const contentType = res.headers.get('content-type') || 'image/jpeg'
+            const arrayBuffer = await res.arrayBuffer()
+            global.imagenQuAx = { buffer: Buffer.from(arrayBuffer), mime: contentType }
+            console.log("Imagen de qu.ax cargada correctamente")
         } catch (e) {
             console.log("Error cargando imagen de qu.ax:", e)
             global.imagenQuAx = null
@@ -14,7 +19,6 @@ if (!global.imagenQuAx) {
     })()
 }
 
-// Handler principal
 let handler = async (m, { conn, text, command }) => {
 
     let txt = `📱✨ *iPhone 15 (128GB)* ✨
@@ -26,8 +30,10 @@ let handler = async (m, { conn, text, command }) => {
 💬 *Disponible ahora*
 👉 ¡Cotiza sin compromiso!`
 
-    // Usamos la imagen global ya cargada
-    let imagen = global.imagenQuAx || 'https://qu.ax/nZoBe' // fallback a URL si Buffer no está listo
+    // Si el buffer global está listo, envía el Buffer con MIME, si no, envía URL como fallback
+    let imagen = global.imagenQuAx
+        ? { url: undefined, buffer: global.imagenQuAx.buffer, mimetype: global.imagenQuAx.mime }
+        : 'https://qu.ax/nZoBe'
 
     await conn.sendButton2(
         m.chat,
