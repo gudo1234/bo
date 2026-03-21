@@ -17,7 +17,7 @@ let handler = async (m, { conn, text, command }) => {
  await conn.sendButton2(
    m.chat,
    txt,
-   '📱 *Diarcel Stor*',
+   '📱 *Diarcel Store*',
    { url: imageUrl }, // ✅ URL directa
    [],
    null,
