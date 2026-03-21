@@ -89,7 +89,7 @@ Object.defineProperty(global, "icono", {
 //📱
 Object.defineProperty(global, "cel", {
     get() {
-        return iconosList[Math.floor(Math.random() * cell.length)];
+        return cell[Math.floor(Math.random() * cell.length)];
     }
 });
 //📱
