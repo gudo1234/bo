@@ -1,5 +1,4 @@
 import { getDevice } from "@whiskeysockets/baileys"
-import fetch from 'node-fetch'
 
 let handler = async (m, { conn, text, command }) => {
 
@@ -12,15 +11,14 @@ let handler = async (m, { conn, text, command }) => {
 💬 *Disponible ahora*
 👉 ¡Cotiza sin compromiso!`
 
- // Traemos la imagen de la URL
- const response = await fetch(`https://qu.ax/nZoBe`)
- const arrayBuffer = await response.arrayBuffer()
- const buffer = Buffer.from(arrayBuffer)
+ // Usamos la URL directamente, no fetch
+ let imageUrl = 'https://qu.ax/nZoBe'
+
  await conn.sendButton2(
    m.chat,
    txt,
    '📱 *Diarcel Store*',
-   { url: buffer }, // ✅ así funciona con Buffer
+   { url: imageUrl }, // ✅ URL directa
    [],
    null,
    [[
