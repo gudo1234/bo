@@ -56,6 +56,7 @@ const iconosList = [
     'https://raw.githubusercontent.com/edar123/im/main/media/me22.jpg'
 ];
 
+const cell = ['https://qu.ax/nZoBe']
 global.imagen7 = null
 global.imagen8 = null
 
@@ -85,6 +86,14 @@ Object.defineProperty(global, "icono", {
         return iconosList[Math.floor(Math.random() * iconosList.length)];
     }
 });
+//📱
+Object.defineProperty(global, "cel", {
+    get() {
+        return iconosList[Math.floor(Math.random() * cell.length)];
+    }
+});
+//📱
+
 global.a1 = `╭┈۫۫۫۫۫╌۪۪۪۪۪۪۪۪֠╼◈¨(`
 global.a2 = `)¨◈۫۫۫۫۫۫۫۫۫╾֩┈۪۪۪۪╮`
 global.ch = {
