@@ -56,7 +56,7 @@ const iconosList = [
     'https://raw.githubusercontent.com/edar123/im/main/media/me22.jpg'
 ];
 
-const cell = ['https://qu.ax/nZoBe']
+const cell = ['https://raw.githubusercontent.com/edar123/im/main/media/me23.jpg', 'https://raw.githubusercontent.com/edar123/im/main/media/me23.jpg']
 global.imagen7 = null
 global.imagen8 = null
 
