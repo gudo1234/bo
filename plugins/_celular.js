@@ -27,7 +27,7 @@ let handler = async (m, { conn, text, command }) => {
    ],
    [
      '🔥 Ver más',
-     channel
+     "https://whatsapp.com/channel/0029VaXHNMZL7UVTeseuqw3H"
    ]],
    null
  )
