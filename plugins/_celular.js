@@ -18,7 +18,7 @@ let handler = async (m, { conn, text, command }) => {
    m.chat,
    txt,
    '📱 *Diarcel Store*',
-   { url: imageUrl }, // ✅ URL directa
+   { url: icono }, // ✅ URL directa
    [],
    null,
    [[
