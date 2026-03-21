@@ -8,7 +8,7 @@ let handler = async (m, { conn }) => {
   }
 
   try {
-    const menu = `hola`
+    const menu = `puto quien lo lea :v`
 
     // --- Context info ---
     const contextInfo = {
