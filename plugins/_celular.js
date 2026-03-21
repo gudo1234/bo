@@ -12,13 +12,15 @@ let handler = async (m, { conn, text, command }) => {
 💬 *Disponible ahora*
 👉 ¡Cotiza sin compromiso!`
 
- let im = await (await fetch(`https://qu.ax/nZoBe`)).buffer()
-
+ // Traemos la imagen de la URL
+ const response = await fetch(`https://qu.ax/nZoBe`)
+ const arrayBuffer = await response.arrayBuffer()
+ const buffer = Buffer.from(arrayBuffer)
  await conn.sendButton2(
    m.chat,
    txt,
    '📱 *Diarcel Store*',
-   im,
+   { url: buffer }, // ✅ así funciona con Buffer
    [],
    null,
    [[
@@ -29,7 +31,7 @@ let handler = async (m, { conn, text, command }) => {
      '🔥 Ver más',
      "https://whatsapp.com/channel/0029VaXHNMZL7UVTeseuqw3H"
    ]],
-   null
+   m
  )
 
 }
