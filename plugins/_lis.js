@@ -117,5 +117,7 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.command = ['lis']
+//handler.command = ['lis']
+handler.customPrefix = /🩸/;
+handler.command = new RegExp;
 export default handler
