@@ -21,7 +21,7 @@ let handler = async (m, { conn, text, command }) => {
         [
             [
                 '🛒 Comprar ahora',
-                `https://wa.me/50492280729?text=👋+Hola,+me+interesa+el+iPhone+15+de+128GB,+¿me+puedes+dar+más+información?+`
+                `https://wa.me/50498511183?text=👋+Hola,+me+interesa+el+iPhone+15+de+128GB,+¿me+puedes+dar+más+información?+`
             ],
             []
         ],
