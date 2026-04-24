@@ -54,7 +54,7 @@ let handler = async (m, { conn, args }) => {
             ],
             []
         ],
-        m
+        null
     )
 
     m.react("✅")
