@@ -16,14 +16,14 @@ let handler = async (m, { conn, args }) => {
 
     let jid = numero + "@s.whatsapp.net";
 
-    let txt = `📱✨ *iPhone 15 (128GB)* ✨
+    /*let txt = `📱✨ *iPhone 15 (128GB)* ✨
 
 - 🔥 Potencia y estilo en tus manos
 - 📸 Cámara impresionante
 - ⚡ Rendimiento ultra rápido
 
 💬 *Disponible ahora*
-👉 ¡Cotiza sin compromiso!`;
+👉 ¡Cotiza sin compromiso!`;*/
 
     // 🧠 TRUCO CLAVE: abrir chat primero
     await conn.sendPresenceUpdate("composing", jid);
@@ -31,12 +31,20 @@ let handler = async (m, { conn, args }) => {
     // ⏳ pequeño delay (importante)
     await new Promise(r => setTimeout(r, 1200));
 
-    // 🚀 ahora sí enviar
+    let txt = `📱✨ *iPhone 15 (128GB)* ✨
+
+- 🔥 Potencia y estilo en tus manos
+- 📸 Cámara impresionante
+- ⚡ Rendimiento ultra rápido
+
+💬 *Disponible ahora*
+👉 ¡Cotiza sin compromiso!`
+
     await conn.sendButton2(
         jid,
         txt,
         '📱 *Diarcel Store*',
-        numero,
+        cel,
         [],
         null,
         [
@@ -47,9 +55,9 @@ let handler = async (m, { conn, args }) => {
             []
         ],
         m
-    );
+    )
 
-    m.reply(`✅ Enviado a +${numero}`);
+    m.react("✅")
 };
 
 handler.command = ['enviar'];
