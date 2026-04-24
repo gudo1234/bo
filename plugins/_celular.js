@@ -1,23 +1,21 @@
-import PhoneNumber from "awesome-phonenumber";
-
 let handler = async (m, { conn, args }) => {
 
-    if (!args[0]) {
+    if (!args.length) {
         return m.reply(`✳️ Ingresa un número\n\nEjemplo:\n.enviar 50488723207`);
     }
 
-    // Limpiar número
-    let numero = args[0].replace(/\D/g, "");
+    // 🔥 AQUÍ EL FIX
+    let numero = args.join("").replace(/\D/g, "");
 
-    // Validar número
     const pn = new PhoneNumber("+" + numero);
     if (!pn.isValid()) {
         return m.reply("❌ Número inválido");
     }
 
-    // Convertir a JID
     let jid = pn.getNumber("rfc3966").replace("tel:+", "") + "@s.whatsapp.net";
 
+    // resto igual...
+};
     let txt = `📱✨ *iPhone 15 (128GB)* ✨
 
 - 🔥 Potencia y estilo en tus manos
