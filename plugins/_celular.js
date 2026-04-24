@@ -1,10 +1,12 @@
+import PhoneNumber from "awesome-phonenumber";
+
 let handler = async (m, { conn, args }) => {
 
     if (!args.length) {
-        return m.reply(`✳️ Ingresa un número\n\nEjemplo:\n.enviar 50488723207`);
+        return m.reply("✳️ Usa:\n.enviar 50488723207");
     }
 
-    // 🔥 AQUÍ EL FIX
+    // 🔥 Unir todo (para +504 8872-3207 etc)
     let numero = args.join("").replace(/\D/g, "");
 
     const pn = new PhoneNumber("+" + numero);
@@ -12,10 +14,8 @@ let handler = async (m, { conn, args }) => {
         return m.reply("❌ Número inválido");
     }
 
-    let jid = pn.getNumber("rfc3966").replace("tel:+", "") + "@s.whatsapp.net";
+    let jid = numero + "@s.whatsapp.net";
 
-    // resto igual...
-};
     let txt = `📱✨ *iPhone 15 (128GB)* ✨
 
 - 🔥 Potencia y estilo en tus manos
@@ -25,8 +25,15 @@ let handler = async (m, { conn, args }) => {
 💬 *Disponible ahora*
 👉 ¡Cotiza sin compromiso!`;
 
+    // 🧠 TRUCO CLAVE: abrir chat primero
+    await conn.sendPresenceUpdate("composing", jid);
+
+    // ⏳ pequeño delay (importante)
+    await new Promise(r => setTimeout(r, 1200));
+
+    // 🚀 ahora sí enviar
     await conn.sendButton2(
-        jid, // 👈 se envía directamente al número
+        jid,
         txt,
         '📱 *Diarcel Store*',
         numero,
@@ -38,10 +45,11 @@ let handler = async (m, { conn, args }) => {
                 `https://wa.me/50498511183?text=👋+Hola,+me+interesa+el+iPhone+15+de+128GB,+¿me+puedes+dar+más+información?+`
             ],
             []
-        ]
+        ],
+        m
     );
 
-    m.reply(`✅ Mensaje enviado a +${numero}`);
+    m.reply(`✅ Enviado a +${numero}`);
 };
 
 handler.command = ['enviar'];
