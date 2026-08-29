@@ -30,7 +30,7 @@
   "license": "GPL-3.0-or-later",
 
   "dependencies": {
-    "@whiskeysockets/baileys": "github:EdderBot02/bail",
+    "@whiskeysockets/baileys": "github:elrebelde21/baileys",
     "@bochilteam/scraper": "^4.2.4",
     "@StarlightsTeam/Scraper": "github:StarlightsTeam/StarlightsTeam-Scraper",
     "@vitalets/google-translate-api": "^8.0.0",
